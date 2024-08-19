@@ -11,6 +11,10 @@ The tutorial instructions are based on examples provided by the `scikit-fuzzy` l
 
 Python version 3.9, 3.10, or 3.11 (3.12 not yet supported).
 
+As an alternative, the environment can be created with conda. This is recommended if you do have python 3.12 already
+installed, so you do not need to downgrade. Check the installation guide here:
+https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html
+
 ## Installation
 
 > [!NOTE]
@@ -34,10 +38,21 @@ python3 --version
 python3 -m venv venv
 ```
 
+**Conda Alternative**
+
+```bash
+conda create --name fuzzy_tutorial python=3.11
+```
+
 3. **Activate** the virtual environment:
 
 ```bash
 source venv/bin/activate
+```
+
+**Conda Alternative**
+```bash
+conda activate fuzzy_tutorial
 ```
 
 4. **Install libraries**
@@ -50,11 +65,14 @@ pip install -r requirements.txt
 pip install jupyterlab
 ```
 
+The same commands apply to conda.
+
 5. **Start JupyterLab**:
 
 ```bash
 jupyter lab
 ```
+The same command applies to conda.
 
 This should open a local web interface (or display a URL) for JupyterLab, where you can access the tutorial notebooks.
 
