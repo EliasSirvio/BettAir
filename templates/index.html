@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Microclimate Risk Assessment</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">MicroclimateApp</a>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="mb-4">Assess Microclimate Risk Level</h1>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST" action="/">
+            <div class="mb-3">
+                <label for="location_id" class="form-label">Select Location</label>
+                <select class="form-select" id="location_id" name="location_id" required>
+                    {% for loc_id, loc_name in locations.items() %}
+                        <option value="{{ loc_id }}" {% if location_id == loc_id %}selected{% endif %}>{{ loc_name }} (ID: {{ loc_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="veg_cover" class="form-label">Vegetation Cover (%)</label>
+                <input type="number" class="form-control" id="veg_cover" name="veg_cover" min="0" max="100" step="1" required
+                       value="{{ veg_cover if veg_cover is defined else '' }}">
+            </div>
+            <div class="mb-3">
+                <label for="build_density" class="form-label">Building Density (%)</label>
+                <input type="number" class="form-control" id="build_density" name="build_density" min="0" max="100" step="1" required
+                       value="{{ build_density if build_density is defined else '' }}">
+            </div>
+            <div class="mb-3">
+                <label for="population_density" class="form-label">Population Density (per sq.km)</label>
+                <input type="number" class="form-control" id="population_density" name="population_density" min="0" max="20000" step="1" required
+                       value="{{ population_density if population_density is defined else '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Compute Risk Level</button>
+        </form>
+
+        {% if risk_score is defined and risk_category is defined %}
+            <div class="mt-5">
+                <h3>Results:</h3>
+                <p><strong>Microclimate Risk Score:</strong> {{ risk_score | round(2) }}</p>
+                <p><strong>Microclimate Risk Level:</strong> {{ risk_category }}</p>
+                {% if recommendations is defined %}
+                    <h4>Recommendations:</h4>
+                    <ul>
+                        {% for rec in recommendations %}
+                            <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

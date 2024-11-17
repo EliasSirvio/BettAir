@@ -147,3 +147,7 @@ After completing the tutorials, create your own Jupyter notebook applying one of
 1. **Select a domain**: choose a domain related to your group project (if already available) or a personal interest. 
 2. **Create and name your notebook**: experiment with the chosen approach and save your notebook as `03_<YourProjectName>.ipynb`. 
 3. **Push to your repository**: upload your completed notebook to your GitHub repository (_including_ the output).
+
+
+
+2caa6fe0fe5066bc5d382ec56ee1bcea909f0874444db7983cf39353caa408b2
