@@ -100,12 +100,15 @@ ctrl_sys = ctrl.ControlSystem([
 simulation = ctrl.ControlSystemSimulation(ctrl_sys)
 
 # Define map
-s1 = Station((40, 20), air_quality=25, population_density=15000, veg_cover=25)
-s2 = Station((50, 60), air_quality=5, population_density=1000, veg_cover=5)
-s3 = Station((70, 40), air_quality=78, population_density=2000, veg_cover=34)
-s4 = Station((80, 0), air_quality=10, population_density=1000, veg_cover=90)
-s5 = Station((62, 3), air_quality=95, population_density=17000, veg_cover=0)
-stations = np.array([s1, s2, s3, s4, s5])
+N_STATIONS = 100
+random_locations = [(np.random.randint(0,100), np.random.randint(0,100)) for i in range(N_STATIONS)]
+random_aq = [np.random.randint(0,100) for i in range(N_STATIONS)]
+random_pd = [np.random.randint(0,20000) for i in range(N_STATIONS)]
+random_vc = [np.random.randint(0,100) for i in range(N_STATIONS)]
+stations = []
+for i in range(N_STATIONS):
+    stations.append(Station(random_locations[i], random_aq[i], random_pd[i], random_vc[i]))
+stations = np.array(stations)
 map = Map(stations, size=100)
 
 # Run simulation, given query location
