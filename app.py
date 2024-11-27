@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from fuzzy_logic import compute_risk_level
 from openaq_api import get_air_quality
 from recommendations import get_recommendations
+#from arcgis_api import get_population_density
+from heatmap_generator import generate_heatmap  # Import the heatmap generator
 import logging
+import os
 
 app = Flask(__name__)
 
@@ -93,6 +96,17 @@ def index():
 
     # For GET requests, render the page with default values
     return render_template('index.html', locations=locations)
+
+@app.route('/heatmap')
+def heatmap():
+    try:
+        # Generate the heatmap
+        heatmap_path = generate_heatmap()
+        # Return the heatmap page
+        return render_template('heatmap.html', heatmap_image='heatmap.png')
+    except Exception as e:
+        logger.error(f"Error generating heatmap: {e}")
+        return render_template('heatmap.html', error="Error generating heatmap.")
 
 if __name__ == '__main__':
     app.run(debug=True)
