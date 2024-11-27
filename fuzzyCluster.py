@@ -3,12 +3,15 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from fcmeans import FCM
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 from faker import Faker
 import random
 from wordcloud import WordCloud
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
+from transformers import pipeline
+
 
 # Initialize Faker and download NLTK data
 fake = Faker()
@@ -44,13 +47,25 @@ fake_text_templates = {
         "Playground equipment has been updated to include more inclusive and safe options.",
         "Regular maintenance ensures that parks remain clean and welcoming for everyone.",
         "Local sports leagues are thriving thanks to improved recreational facilities.",
+        # Nuanced Templates
+        "I appreciate the new playground equipment, but why aren't there more shaded areas for families?",
+        "Urban gardens sound great, but the maintenance fees are skyrocketing. Is it worth it?",
+        "The community center's classes are useful, but they're always fully booked. More sessions are needed.",
+        "It's wonderful that parks are clean, but the lack of lighting at night makes them feel unsafe.",
+        "While local sports leagues are thriving, the registration costs are too high for some residents."
     ],
     "Traffic and Pollution": [
-        "Emission levels have dropped since the introduction of the new traffic regulations.",
-        "Public awareness campaigns are educating drivers about the importance of reducing congestion.",
-        "Investment in electric vehicle infrastructure is helping to lower overall pollution.",
-        "Traffic signal optimization has improved the flow of vehicles during peak hours.",
-        "Noise pollution mitigation strategies are being implemented in residential areas.",
+        "Emission levels have increased despite new regulations.",
+        "Residents are frustrated with the lack of progress on traffic congestion.",
+        "Air quality has deteriorated due to increased industrial activities.",
+        "Noise pollution is a constant issue in downtown areas.",
+        "Efforts to reduce pollution have been insufficient.",
+        # Nuanced Templates
+        "Emission controls are tighter, but traffic still feels unbearable during rush hour.",
+        "I understand the need for traffic projects, but the construction is causing more delays.",
+        "Industrial activities are booming, but at what cost to our air quality?",
+        "Noise pollution has gotten worse, yet the city hasn't taken effective measures to address it.",
+        "Efforts to reduce pollution are commendable, but they lack the necessary funding to make a real impact."
     ],
     "Public Transport and Safety": [
         "New subway lines are being planned to connect underserved neighborhoods.",
@@ -58,6 +73,12 @@ fake_text_templates = {
         "Real-time tracking apps for public transport are improving commuter experiences.",
         "Affordable fare options are being introduced to make public transport more accessible.",
         "Regular maintenance of public transport vehicles ensures reliability and safety.",
+        # Nuanced Templates
+        "The new subway lines are a good idea, but construction noise is disrupting our daily lives.",
+        "Enhanced safety protocols are welcome, but some areas still feel unsafe during late hours.",
+        "Real-time tracking is useful, but the app frequently crashes, causing frustration.",
+        "Affordable fares are great, but they might lead to overcrowded buses and trains.",
+        "Maintenance schedules are thorough, but the delays caused by repairs are inconvenient."
     ],
     "Cycling Infrastructure": [
         "Protected bike lanes are being constructed to ensure cyclist safety.",
@@ -65,6 +86,12 @@ fake_text_templates = {
         "Community bike repair workshops are promoting DIY maintenance skills.",
         "Cycling events are encouraging more residents to take up biking as a mode of transport.",
         "Integration of cycling paths with public transport hubs is enhancing connectivity.",
+        # Nuanced Templates
+        "Protected bike lanes are a step forward, but their placement sometimes blocks pedestrian walkways.",
+        "Bike-sharing is convenient, but the bikes are often in poor condition and not properly maintained.",
+        "Repair workshops are helpful, but they only operate on weekends, limiting accessibility.",
+        "Cycling events are fun, but they tend to exclude those who are less experienced riders.",
+        "Integrating cycling paths with transport hubs is ideal, but there's still a lack of signage guiding cyclists."
     ],
     "Green Energy and Sustainability": [
         "Community solar projects are allowing residents to invest in renewable energy.",
@@ -72,6 +99,12 @@ fake_text_templates = {
         "Energy-efficient street lighting is being installed across the city.",
         "Recycling programs are expanding to include electronic waste and hazardous materials.",
         "Sustainability certifications are being promoted for local businesses.",
+        # Nuanced Templates
+        "Community solar projects are innovative, but the initial investment costs are too high for many families.",
+        "Green roof mandates are great for sustainability, but they increase construction costs significantly.",
+        "Energy-efficient lighting reduces energy bills, yet some areas still experience frequent outages.",
+        "Expanding recycling is necessary, but the lack of proper disposal facilities makes it challenging.",
+        "Sustainability certifications are beneficial, but the application process is too cumbersome for small businesses."
     ],
     "Housing and Development": [
         "Affordable housing initiatives are addressing the needs of low-income families.",
@@ -79,6 +112,12 @@ fake_text_templates = {
         "Historic buildings are being preserved while integrating modern architectural elements.",
         "Smart home technologies are being incorporated into new housing projects.",
         "Rental assistance programs are supporting residents in securing stable housing.",
+        # Nuanced Templates
+        "Affordable housing is essential, but the locations are often too far from essential services.",
+        "Mixed-use developments bring diversity, but they sometimes lead to increased traffic and congestion.",
+        "Preserving historic buildings is important, yet the integration of modern elements can disrupt the area's character.",
+        "Smart home technologies are convenient, but they raise concerns about privacy and data security.",
+        "Rental assistance helps many, but the application process is lengthy and complicated."
     ],
     "Education and Schools": [
         "New STEM programs are being introduced to enhance science and technology education.",
@@ -86,6 +125,12 @@ fake_text_templates = {
         "After-school programs are providing additional learning opportunities for students.",
         "Partnerships with local businesses are offering internships and practical experiences for students.",
         "Inclusive education policies are ensuring that all students receive equitable learning opportunities.",
+        # Nuanced Templates
+        "STEM programs are exciting, but they overshadow the importance of arts and humanities education.",
+        "Upgraded facilities are impressive, yet some schools still lack basic resources and support.",
+        "After-school programs are beneficial, but they're not accessible to all students due to transportation issues.",
+        "Business partnerships offer great opportunities, but they can sometimes influence the curriculum in biased ways.",
+        "Inclusive policies are necessary, but proper training for educators is lacking to implement them effectively."
     ],
     "Public Safety and Security": [
         "Neighborhood watch programs are increasing community involvement in safety.",
@@ -93,6 +138,12 @@ fake_text_templates = {
         "Surveillance systems are being upgraded to enhance public security.",
         "Disaster preparedness drills are educating residents on how to respond to emergencies.",
         "Mental health resources are being integrated into public safety strategies.",
+        # Nuanced Templates
+        "Neighborhood watch programs foster community spirit, but they sometimes lead to increased tensions with law enforcement.",
+        "Reduced emergency response times are crucial, yet some areas still experience delays due to traffic.",
+        "Upgraded surveillance improves security, but it raises concerns about privacy invasion.",
+        "Disaster drills are informative, but they're often too infrequent to ensure preparedness.",
+        "Integrating mental health into safety strategies is commendable, but the resources allocated are insufficient to meet demand."
     ],
     "Economic Development": [
         "Incentives for startups are fostering innovation and job creation.",
@@ -100,6 +151,12 @@ fake_text_templates = {
         "Tourism campaigns are highlighting the city's unique attractions to attract visitors.",
         "Workforce training programs are equipping residents with skills needed for emerging industries.",
         "Public-private partnerships are driving large-scale economic projects.",
+        # Nuanced Templates
+        "Startup incentives boost innovation, but they can sometimes lead to market saturation and competition issues.",
+        "Revitalizing marketplaces is positive, yet some long-standing businesses struggle to adapt to new changes.",
+        "Tourism campaigns attract visitors, but they also contribute to overcrowding in popular areas.",
+        "Workforce training is essential, but the programs often lack up-to-date curricula to match industry needs.",
+        "Public-private partnerships fund large projects, but they can lead to prioritizing profit over community benefits."
     ],
     "Healthcare Facilities": [
         "New clinics are being established to provide accessible healthcare in all neighborhoods.",
@@ -107,6 +164,12 @@ fake_text_templates = {
         "Mental health facilities are receiving increased funding and support.",
         "Health education programs are promoting preventive care and wellness initiatives.",
         "Specialized medical services are being introduced to address diverse health needs.",
+        # Nuanced Templates
+        "New clinics improve access, but some are understaffed, leading to longer wait times.",
+        "Telemedicine is convenient, yet it lacks the personal touch of in-person consultations.",
+        "Increased funding for mental health is necessary, but stigma still prevents many from seeking help.",
+        "Preventive care programs are valuable, but their reach is limited in underserved communities.",
+        "Specialized services address diverse needs, but they often come with higher costs that are unaffordable for some residents."
     ],
     "Cultural Heritage and Events": [
         "Restoration projects are preserving historical landmarks for future generations.",
@@ -114,6 +177,12 @@ fake_text_templates = {
         "Art installations in public spaces are enhancing the city's aesthetic appeal.",
         "Cultural exchange programs are fostering international relationships and understanding.",
         "Local museums are expanding their exhibits to include contemporary art and history.",
+        # Nuanced Templates
+        "Restoration preserves history, but it can limit modern development and expansion opportunities.",
+        "Annual festivals are enjoyable, yet they sometimes disrupt local businesses and traffic.",
+        "Public art installations beautify the city, but they can be controversial regarding artistic choices.",
+        "Cultural exchanges are enriching, but they require significant funding and coordination to be effective.",
+        "Expanding museum exhibits is great, but maintaining and updating them poses financial challenges."
     ],
     "Accessibility and Inclusivity": [
         "Public buildings are being retrofitted with ramps and elevators for better accessibility.",
@@ -121,6 +190,12 @@ fake_text_templates = {
         "Language translation services are being offered in public institutions to support non-native speakers.",
         "Community centers are hosting events that cater to diverse cultural groups.",
         "Accessible public transportation options are being developed to support all residents.",
+        # Nuanced Templates
+        "Retrofitting buildings improves accessibility, but it's often costly and time-consuming.",
+        "Inclusive playgrounds are necessary, yet they require regular maintenance to remain functional for all children.",
+        "Translation services help non-native speakers, but they aren't available in all public institutions.",
+        "Diverse community events are welcoming, but they sometimes lack representation from all cultural groups.",
+        "Accessible transportation is essential, but the routes still don't cover all areas adequately."
     ],
     "Waste Management and Recycling": [
         "Composting programs are being introduced to reduce organic waste.",
@@ -128,6 +203,12 @@ fake_text_templates = {
         "Public education campaigns are raising awareness about proper waste sorting.",
         "Waste-to-energy facilities are being explored as a sustainable disposal method.",
         "Bulk waste collection days are scheduled to manage large items effectively.",
+        # Nuanced Templates
+        "Composting reduces waste, but many residents lack the knowledge to participate correctly.",
+        "Strategically placed recycling bins are helpful, yet they are sometimes neglected and contaminated with non-recyclables.",
+        "Education campaigns are informative, but they need to be more engaging to change long-term behaviors.",
+        "Waste-to-energy is sustainable, but it raises concerns about emissions and environmental impact.",
+        "Bulk waste days are convenient, but the limited scheduling makes it difficult for some families to participate."
     ],
     "Water Management and Infrastructure": [
         "Rainwater harvesting systems are being implemented in residential areas.",
@@ -135,6 +216,12 @@ fake_text_templates = {
         "Flood prevention measures are being enhanced to protect vulnerable neighborhoods.",
         "Smart water meters are being installed to monitor and optimize usage.",
         "Public awareness campaigns are educating residents on water conservation techniques.",
+        # Nuanced Templates
+        "Rainwater harvesting is eco-friendly, but installation costs are prohibitive for some homeowners.",
+        "Water supply upgrades improve reliability, yet construction can lead to temporary shortages and disruptions.",
+        "Flood prevention is crucial, but the allocated budget doesn't cover all high-risk areas adequately.",
+        "Smart meters help optimize usage, but privacy concerns arise regarding data collection and monitoring.",
+        "Conservation campaigns are necessary, but they need to provide practical tips that residents can easily implement."
     ],
     "Technology and Smart City Initiatives": [
         "Smart lighting systems are reducing energy consumption and enhancing security.",
@@ -142,8 +229,15 @@ fake_text_templates = {
         "High-speed internet access is being expanded to bridge the digital divide.",
         "Data analytics are improving urban planning and resource allocation.",
         "Autonomous public transport options are being piloted to increase efficiency.",
+        # Nuanced Templates
+        "Smart lighting cuts energy costs, but the initial installation is expensive and disruptive.",
+        "IoT devices enhance infrastructure management, yet they increase the city's vulnerability to cyberattacks.",
+        "Expanding high-speed internet is essential, but some rural areas still remain underserved.",
+        "Data analytics aid urban planning, but concerns about data privacy and surveillance are growing.",
+        "Autonomous transport is efficient, but it raises questions about job losses in the driving sector."
     ],
 }
+
 
 posts = []
 for _ in range(1000):
@@ -264,7 +358,7 @@ def get_sample_posts(df, cluster_label, sample_size=5):
 
 # Display sample posts for each cluster
 for cluster in range(n_clusters):
-    print(f"\n--- Cluster {cluster + 1}: {cluster_labels[cluster]} Sample Posts ---")
+    print(f"\n--- Cluster {cluster}: {cluster_labels[cluster]} Sample Posts ---")
     sample_posts = get_sample_posts(df, cluster, sample_size=5)
     for post in sample_posts:
         print(f"- {post}")
@@ -318,9 +412,31 @@ plt.xticks(rotation=45)
 plt.legend(title='Sentiment')
 plt.show()
 
+tsne = TSNE(n_components=2, random_state=42)
+reduced_data = tsne.fit_transform(X.toarray())
+
+plt.figure(figsize=(12, 8))
+plt.scatter(reduced_data[:, 0], reduced_data[:, 1], c=df['cluster'], cmap='tab20', alpha=0.6)
+plt.title("Cluster Visualization")
+plt.xlabel("Component 1")
+plt.ylabel("Component 2")
+plt.colorbar(label='Cluster')
+plt.show()
+
 # Example: Print sentiment summary
 print("\nSentiment Summary per Cluster:")
 print(sentiment_per_cluster)
+
+sentiment_pipeline = pipeline("sentiment-analysis")
+
+def get_sentiment_scores(text):
+    result = sentiment_pipeline(text)[0]
+    if result['label'] == 'POSITIVE':
+        return {'neg': 0.0, 'neu': 0.0, 'pos': result['score'], 'compound': result['score']}
+    else:
+        return {'neg': result['score'], 'neu': 0.0, 'pos': 0.0, 'compound': -result['score']}
+
+df['sentiment_scores'] = df['user_post'].apply(get_sentiment_scores)
 
 # Optional: Save the clustered and sentiment-analyzed data to a CSV for further analysis
 df.to_csv("clustered_and_sentiment_forum_posts.csv", index=False)
