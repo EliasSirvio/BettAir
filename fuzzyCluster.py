@@ -238,7 +238,7 @@ fake_text_templates = {
     ],
 }
 
-
+"""""
 posts = []
 for _ in range(1000):
     topic = random.choice(list(topics.keys()))
@@ -250,12 +250,26 @@ data = {
     "post_id": list(range(1, 1001)),
     "user_post": posts,
 }
+"""
+# Load your data from CSV
+# Load your data from CSV
+df = pd.read_csv('my_fake_data.csv')
+
+# Ensure the DataFrame has the required columns
+# Adjust column names if necessary
+df = df[['post_id', 'user_post']]
+
+
 
 # Convert to DataFrame
-df = pd.DataFrame(data)
+#df = pd.DataFrame(data)
 
 # Text Preprocessing and Feature Extraction using TF-IDF with bi-grams
-vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), max_features=500)
+vectorizer = TfidfVectorizer(
+    stop_words="english",
+    ngram_range=(1, 2),
+    max_features=500
+)
 X = vectorizer.fit_transform(df["user_post"])
 
 # Apply Fuzzy C-Means Clustering
@@ -426,7 +440,7 @@ plt.show()
 # Example: Print sentiment summary
 print("\nSentiment Summary per Cluster:")
 print(sentiment_per_cluster)
-
+""""
 sentiment_pipeline = pipeline("sentiment-analysis")
 
 def get_sentiment_scores(text):
@@ -437,6 +451,6 @@ def get_sentiment_scores(text):
         return {'neg': result['score'], 'neu': 0.0, 'pos': 0.0, 'compound': -result['score']}
 
 df['sentiment_scores'] = df['user_post'].apply(get_sentiment_scores)
-
+"""
 # Optional: Save the clustered and sentiment-analyzed data to a CSV for further analysis
 df.to_csv("clustered_and_sentiment_forum_posts.csv", index=False)
