@@ -9,30 +9,31 @@ from tqdm import tqdm
 PLOTTING_MF = False
 
 # Number of stations on the map
-N_STATIONS = 100
+N_STATIONS = 5
 
 # Size of the map
 # NB: Significantly affects computation time - Output is computed for MAP_SIZE^2 locations
-MAP_SIZE = 100      
+MAP_SIZE = 20      
 
 # Create universe variables
     # Input
-population_density = ctrl.Antecedent(np.arange(0, 20001, 1), 'population_density')
+population_density = ctrl.Antecedent(np.arange(0, 201, 1), 'population_density')
 air_pollution = ctrl.Antecedent(np.arange(0, 151, 1), 'air_pollution')
 veg_cover = ctrl.Antecedent(np.arange(0, 101, 1), 'veg_cover')
     # Output
 need_for_action = ctrl.Consequent(np.arange(0, 101, 1), 'need_for_action')
 
 # Population Density Membership Functions
-population_density['very_low'] = fuzz.trapmf(population_density.universe, [0, 0, 250, 750])
-population_density['low'] = fuzz.trimf(population_density.universe, [500, 1000, 1500])
-population_density['medium'] = fuzz.trimf(population_density.universe, [1000, 2000, 3000])
-population_density['high'] = fuzz.trimf(population_density.universe, [2500, 5000, 7500])
-population_density['very_high'] = fuzz.trapmf(population_density.universe, [5000, 10000, 20000, 20000])
+population_density['very_low'] = fuzz.gaussmf(population_density.universe, mean=2, sigma=1)
+population_density['low'] = fuzz.gaussmf(population_density.universe, mean=5, sigma=1)
+population_density['medium'] = fuzz.gaussmf(population_density.universe, mean=11, sigma=4)
+population_density['high'] = fuzz.gaussmf(population_density.universe, mean=28, sigma=12)
+population_density['very_high'] = fuzz.gaussmf(population_density.universe, mean=80, sigma=40)
+population_density['highest'] = fuzz.smf(population_density.universe, a=100, b=120)
 if PLOTTING_MF:
     population_density.view()
     plt.title('Population Density Membership Functions')
-    plt.xlabel('Population Density (people/km²)')
+    plt.xlabel('Population Density (inhabitants/ha)')
 
 # Air Pollution Membership Functions
 air_pollution['good'] = fuzz.trapmf(air_pollution.universe, [0, 0, 10, 15])
@@ -41,7 +42,7 @@ air_pollution['unhealthy'] = fuzz.trapmf(air_pollution.universe, [35, 50, 150, 1
 if PLOTTING_MF:
     air_pollution.view()
     plt.title('Air Pollution Membership Functions')
-    plt.xlabel('Air pollution (µg/m³)')
+    plt.xlabel('pm2.5 (µg/m³)')
 
 # Vegetation Cover Membership Functions
 veg_cover['low'] = fuzz.trapmf(veg_cover.universe, [0, 0, 15, 30])
@@ -105,7 +106,7 @@ if not PLOTTING_MF:
     # Random values for stations
     random_locations = [(np.random.randint(0,MAP_SIZE), np.random.randint(0,MAP_SIZE)) for i in range(N_STATIONS)]
     random_aq = [np.random.randint(0,150) for i in range(N_STATIONS)]
-    random_pd = [np.random.randint(0,20000) for i in range(N_STATIONS)]
+    random_pd = [np.random.randint(0,200) for i in range(N_STATIONS)]
     random_vc = [np.random.randint(0,100) for i in range(N_STATIONS)]
 
     # Initiate random stations
