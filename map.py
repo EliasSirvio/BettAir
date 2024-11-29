@@ -117,7 +117,10 @@ def barycentric_coordinates(triangle: np.ndarray, point: tuple[int, int]): #TODO
 
         T = np.vstack((triangle.T, np.ones((1, 3))))
         v = np.append(point, 1)
-        return np.linalg.solve(T, v)
+        try:
+            return np.linalg.solve(T, v)
+        except np.linalg.LinAlgError:
+            raise ValueError("Triangle vertices are not linearly independent!")
 
 if __name__ == "__main__":
     s1 = Station((2, 3), air_quality=2, population_density=3, veg_cover=1)
