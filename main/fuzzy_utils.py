@@ -30,6 +30,7 @@ need_for_action = ctrl.Consequent(np.arange(0, 101, 1), 'need_for_action')
 
 # Define membership functions
 # Population Density Membership Functions
+# based on scale from https://www.geocat.ch/geonetwork/srv/eng/catalog.search#/metadata/4bfbbf20-d90e-4131-8fe2-4c454ad45c16
 population_density['very_low'] = fuzz.gaussmf(population_density.universe, mean=2, sigma=1)
 population_density['low'] = fuzz.gaussmf(population_density.universe, mean=5, sigma=1)
 population_density['medium'] = fuzz.gaussmf(population_density.universe, mean=11, sigma=4)
