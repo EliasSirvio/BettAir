@@ -7,7 +7,7 @@ from map import Map, Station
 MAX_PD = 151
 """Maximum value for population density (exclusive)\n
 Unit: µg/m³ of the pollutor pm2.5"""
-MAX_AP = 171
+MAX_AP = 151
 """Maximum value for air pollution (exclusive)\n
 Unit: inhabitants/ha""" 
 MAX_VC = 101
@@ -24,7 +24,7 @@ need_for_action = ctrl.Consequent(np.arange(0, 101, 1), 'need_for_action')
 
 # Population Density Membership Functions
 #   based on scale from https://www.geocat.ch/geonetwork/srv/eng/catalog.search#/metadata/4bfbbf20-d90e-4131-8fe2-4c454ad45c16
-population_density['very_low'] = fuzz.gaussmf(population_density.universe, mean=2, sigma=1)
+population_density['very_low'] = fuzz.zmf(population_density.universe, a=2, b=3)
 population_density['low'] = fuzz.gaussmf(population_density.universe, mean=5, sigma=1)
 population_density['medium'] = fuzz.gaussmf(population_density.universe, mean=11, sigma=4)
 population_density['high'] = fuzz.gaussmf(population_density.universe, mean=28, sigma=12)
@@ -43,9 +43,9 @@ veg_cover['medium'] = fuzz.trapmf(veg_cover.universe, [25, 40, 60, 75])
 veg_cover['high'] = fuzz.trapmf(veg_cover.universe, [65, 85, 100, 100])  
 
 # Need for Action Membership Functions
-need_for_action['low'] = fuzz.trapmf(need_for_action.universe, [0, 0, 20, 40])
-need_for_action['medium'] = fuzz.trimf(need_for_action.universe, [35, 50, 65])
-need_for_action['high'] = fuzz.trapmf(need_for_action.universe, [60, 80, 100, 100])    
+need_for_action['low'] = fuzz.zmf(need_for_action.universe, a=20, b=40)
+need_for_action['medium'] = fuzz.gaussmf(need_for_action.universe, mean=50, sigma=15)
+need_for_action['high'] = fuzz.smf(need_for_action.universe, a=60, b=80)  
 
 
 # Fuzzy rules
@@ -128,3 +128,4 @@ if __name__ == "__main__":
     need_for_action.view()
     plt.title('Need for Action Membership Functions')
     plt.xlabel('Need for action(%)')
+    plt.show()

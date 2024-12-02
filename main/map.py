@@ -128,4 +128,6 @@ if __name__ == "__main__":
     s3 = Station((1, 2), air_quality=1, population_density=2, veg_cover=2)
     stations = np.array([s1, s2, s3])
     map = Map(stations)
-    print(map.get_data((1, 1)))
+    print(map)
+    aq, pd, vc = map.get_data((1,1))
+    print(f"At location (1,1), the interpolated data is:\n{aq=}\n{pd=}\n{vc=}")
