@@ -33,14 +33,14 @@ population_density['highest'] = fuzz.smf(population_density.universe, a=100, b=1
 
 
 # Air Pollution Membership Functions
-air_pollution['good'] = fuzz.trapmf(air_pollution.universe, [0, 0, 10, 15])
-air_pollution['moderate'] = fuzz.trapmf(air_pollution.universe, [12, 20, 30, 40])
-air_pollution['unhealthy'] = fuzz.trapmf(air_pollution.universe, [35, 50, 150, 150])   
+air_pollution['good'] = fuzz.zmf(air_pollution.universe, a=10, b=15)
+air_pollution['moderate'] = fuzz.gaussmf(air_pollution.universe, mean=25, sigma=9) #[12, 20, 30, 38]
+air_pollution['unhealthy'] = fuzz.smf(air_pollution.universe, a=35, b=50)   
 
 # Vegetation Cover Membership Functions
-veg_cover['low'] = fuzz.trapmf(veg_cover.universe, [0, 0, 15, 30])
-veg_cover['medium'] = fuzz.trapmf(veg_cover.universe, [25, 40, 60, 75])
-veg_cover['high'] = fuzz.trapmf(veg_cover.universe, [65, 85, 100, 100])  
+veg_cover['low'] = fuzz.zmf(veg_cover.universe, a=15, b=30)
+veg_cover['medium'] = fuzz.gaussmf(veg_cover.universe, mean=50, sigma=17) #[25, 40, 60, 75]
+veg_cover['high'] = fuzz.smf(veg_cover.universe, a=65, b=85)  
 
 # Need for Action Membership Functions
 need_for_action['low'] = fuzz.zmf(need_for_action.universe, a=20, b=40)
