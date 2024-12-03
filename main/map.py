@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial import cKDTree
-from geometry_utils import linearly_independent, barycentric_coordinates
+from map_utils import linearly_independent, barycentric_coordinates
 
 class Station:
     def __init__(self, location: tuple[int, int], air_quality: int, population_density: int, veg_cover: int) -> None:

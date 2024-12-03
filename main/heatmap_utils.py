@@ -101,28 +101,48 @@ def run_simulation(query_location: tuple[int, int], map: Map, sim = simulation):
 
 def generate_random_stations(n_stations: int, map_size: int) -> np.ndarray[Station]:
     """
-    Generates an array of stations, placed randomly on the map with random data.
-    """
-    def generate_unique_random_locations(n_locations: int, map_size: int):
-        """
-        Generates a list of unique locations
-        """
-        assert n_locations <= map_size**2, f"The map is too small to have this many unique locations!\n({n_locations=}, {map_size=})"
-        unique_locations = set()
-        while len(unique_locations) < n_locations:
-            unique_locations.add((np.random.randint(0, map_size), np.random.randint(0, map_size)))
-        return list(unique_locations)
-    
+    Generates an array of n_stations stations, placed randomly (but all with unique locations) on the map with random data.
+    """    
     # Random values for stations
     random_locations = generate_unique_random_locations(n_locations=n_stations, map_size=map_size)
     random_aq = [np.random.randint(0,MAX_AP) for _ in range(n_stations)]
     random_pd = [np.random.randint(0,MAX_PD) for _ in range(n_stations)]
     random_vc = [np.random.randint(0,MAX_VC) for _ in range(n_stations)]
     # Initiate random stations
-    stations = []
-    for i in range(n_stations):
-        stations.append(Station(random_locations[i], random_aq[i], random_pd[i], random_vc[i]))
+    stations = [Station(random_locations[i], random_aq[i], random_pd[i], random_vc[i]) for i in range(n_stations)]
     return np.array(stations)
+
+def generate_unique_random_locations(n_locations: int, map_size: int) -> list[tuple[int, int]]:
+        """
+        Generates a list of n_locations unique locations where x,y < map_size
+        """
+        assert n_locations <= map_size**2, f"The map is too small to have this many unique locations!\n({n_locations=}, {map_size=})"
+        unique_locations = set()
+        while len(unique_locations) < n_locations:
+            unique_locations.add((np.random.randint(0, map_size), np.random.randint(0, map_size)))
+        return list(unique_locations)
+
+def plot_heatmap(heatmap: np.ndarray, map: Map):
+    """
+    Plot heatmap figure
+
+    Parameters:
+        heatmap:
+            array with need_for_action values for all locations in the map. Shape: (map_size, map_size)
+        map:
+            map with all the stations to interpolate data from
+    
+    Returns:
+        A plot of the heatmap
+    """
+    plt.imshow(heatmap, cmap='hot', interpolation='bicubic')
+    plt.colorbar(label='Need for action')
+    plt.title('Need for green areas', pad=10)
+    plt.xlabel("West <----> East")
+    plt.ylabel("South <----> North")
+    plt.scatter([x for x,y in map.data.keys()], [y for x,y in map.data.keys()], color='g', marker='o', label="Stations")
+    plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
 
