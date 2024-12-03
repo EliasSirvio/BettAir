@@ -103,8 +103,18 @@ def generate_random_stations(n_stations: int, map_size: int) -> np.ndarray[Stati
     """
     Generates an array of stations, placed randomly on the map with random data.
     """
+    def generate_unique_random_locations(n_locations: int, map_size: int):
+        """
+        Generates a list of unique locations
+        """
+        assert n_locations <= map_size**2, f"The map is too small to have this many unique locations!\n({n_locations=}, {map_size=})"
+        unique_locations = set()
+        while len(unique_locations) < n_locations:
+            unique_locations.add((np.random.randint(0, map_size), np.random.randint(0, map_size)))
+        return list(unique_locations)
+    
     # Random values for stations
-    random_locations = [(np.random.randint(0,map_size), np.random.randint(0,map_size)) for _ in range(n_stations)]
+    random_locations = generate_unique_random_locations(n_locations=n_stations, map_size=map_size)
     random_aq = [np.random.randint(0,MAX_AP) for _ in range(n_stations)]
     random_pd = [np.random.randint(0,MAX_PD) for _ in range(n_stations)]
     random_vc = [np.random.randint(0,MAX_VC) for _ in range(n_stations)]
