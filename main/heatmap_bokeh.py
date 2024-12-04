@@ -74,7 +74,7 @@ y_min, y_max = map_obj.min_lon, map_obj.max_lon
 output_file("need_for_action_heatmap.html")
 
 # Google Maps API Key (Replace with your actual API key)
-API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+API_KEY = "AIzaSyAVpuwt2E4tSVX0sKyJPJ4JhZC6uabvHZI"
 
 # Define map options using GMapOptions
 average_lat = (x_min + x_max) / 2
@@ -100,7 +100,7 @@ color_mapper = LinearColorMapper(palette="Inferno256", low=low_percentile, high=
 
 # Add the heatmap image to the map
 # The 'image' glyph expects a 2D array and will overlay it on the map
-""""
+
 p.image(
     image=[heatmap],
     x=x_min,
@@ -111,19 +111,7 @@ p.image(
     level="image",
     alpha= 0.6  # Adjust transparency as needed
 )
-"""
 
-test_heatmap = np.linspace(0, 100, map_obj.size**2).reshape(map_obj.size, map_obj.size)
-p.image(
-    image=[test_heatmap],
-    x=x_min,
-    y=y_min,
-    dw=(x_max - x_min),
-    dh=(y_max - y_min),
-    color_mapper=color_mapper,
-    level="image",
-    alpha=0.6
-)
 
 # Add a color bar to interpret the heatmap colors
 color_bar = ColorBar(
@@ -191,7 +179,7 @@ station_renderer = p.scatter(
     legend_label="Stations",
     source=source
 )
-""""
+
 # Customize the hover tool for stations
 hover = HoverTool(
     tooltips=[
@@ -216,7 +204,7 @@ labels = LabelSet(
     x_offset=5,
     y_offset=5,
     source=source,
-    render_mode='canvas',  # Valid in Bokeh 3.4.0+
+    #render_mode='canvas',  # Valid in Bokeh 3.4.0+
     text_font_size="10pt",
     text_color="white",
     background_fill_color="black",
@@ -224,7 +212,7 @@ labels = LabelSet(
 )
 
 p.add_layout(labels)
-"""
+
 # Show the plot
 show(p)
 
