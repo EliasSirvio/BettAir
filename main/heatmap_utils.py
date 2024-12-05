@@ -99,28 +99,15 @@ def run_simulation(query_location: tuple[int, int], map: Map, sim = simulation):
     sim.compute()
     return sim.output['need_for_action']
 
-def generate_random_stations(n_stations: int, map_size: int, means_factor: float = 1/4, stdev_factor: float = 1/4) -> np.ndarray[Station]:
+def generate_random_stations(n_stations: int, map_size: int) -> np.ndarray[Station]:
     """
     Generates an array of n_stations stations, placed randomly (but all with unique locations) on the map with random data.
-
-    Parameters:
-        n_stations:
-            Number of stations to generate
-        map_size:
-            Length of map along one axis
-        means_factor:
-            Data is randomly drawn from a gaussian distribution, with mean at MAX_VALUE * means_factor
-        stdev_factor:
-            Data is randomly drawn from a gaussian distribution, with standard deviation at MAX_VALUE * stdev_factor
-    
-    Returns:
-        An np.array of stations
     """    
     # Random values for stations
     random_locations = generate_unique_random_locations(n_locations=n_stations, map_size=map_size)
-    random_aq = np.random.normal(loc=MAX_AP * means_factor, scale=MAX_AP * stdev_factor, size=n_stations)
-    random_pd = np.random.normal(loc=MAX_PD * means_factor, scale=MAX_PD * stdev_factor, size=n_stations)
-    random_vc = np.random.normal(loc=MAX_VC * means_factor, scale=MAX_VC * stdev_factor, size=n_stations)
+    random_aq = [np.random.randint(0,MAX_AP) for _ in range(n_stations)]
+    random_pd = [np.random.randint(0,MAX_PD) for _ in range(n_stations)]
+    random_vc = [np.random.randint(0,MAX_VC) for _ in range(n_stations)]
     # Initiate random stations
     stations = [Station(random_locations[i], random_aq[i], random_pd[i], random_vc[i]) for i in range(n_stations)]
     return np.array(stations)
