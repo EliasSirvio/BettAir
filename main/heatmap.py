@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 if __name__ == "__main__":
     # Size of map, and number of stations on the map
-    MAP_SIZE, N_STATIONS = 30, 100
+    MAP_SIZE, N_STATIONS = 50, 50
     # NB: Significantly affects computation time - Output is computed for MAP_SIZE^2 locations
 
     # Initiate map

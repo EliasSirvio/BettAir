@@ -99,15 +99,30 @@ def run_simulation(query_location: tuple[int, int], map: Map, sim = simulation):
     sim.compute()
     return sim.output['need_for_action']
 
-def generate_random_stations(n_stations: int, map_size: int) -> np.ndarray[Station]:
+def generate_random_stations(n_stations: int, map_size: int, max_ap: int = MAX_AP, max_pd: int = MAX_PD, max_vc: int = MAX_VC) -> np.ndarray[Station]:
     """
     Generates an array of n_stations stations, placed randomly (but all with unique locations) on the map with random data.
+
+    Parameters:
+        n_stations:
+            Number of stations to generate
+        map_size:
+            Length of map along one axis
+        max_ap:
+            Maximum value for randomly drawn air pollution data
+        max_pd:
+            Maximum value for randomly drawn population density data
+        max_vc:
+            Maximum value for randomly drawn vegetation cover data
+    
+    Returns:
+        An np.array of stations
     """    
     # Random values for stations
     random_locations = generate_unique_random_locations(n_locations=n_stations, map_size=map_size)
-    random_aq = [np.random.randint(0,MAX_AP) for _ in range(n_stations)]
-    random_pd = [np.random.randint(0,MAX_PD) for _ in range(n_stations)]
-    random_vc = [np.random.randint(0,MAX_VC) for _ in range(n_stations)]
+    random_aq = np.random.randint(low=0, high=max_ap, size=n_stations)
+    random_pd = np.random.randint(low=0, high=max_pd, size=n_stations)
+    random_vc = np.random.randint(low=0, high=max_vc, size=n_stations)
     # Initiate random stations
     stations = [Station(random_locations[i], random_aq[i], random_pd[i], random_vc[i]) for i in range(n_stations)]
     return np.array(stations)
