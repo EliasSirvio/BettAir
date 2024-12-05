@@ -26,20 +26,20 @@ need_for_action = ctrl.Consequent(np.arange(0, 101, 1), 'need_for_action')
 #   based on scale from https://www.geocat.ch/geonetwork/srv/eng/catalog.search#/metadata/4bfbbf20-d90e-4131-8fe2-4c454ad45c16
 population_density['very_low'] = fuzz.zmf(population_density.universe, a=2, b=3)
 population_density['low'] = fuzz.gaussmf(population_density.universe, mean=5, sigma=1)
-population_density['medium'] = fuzz.gaussmf(population_density.universe, mean=11, sigma=4)
-population_density['high'] = fuzz.gaussmf(population_density.universe, mean=28, sigma=12)
-population_density['very_high'] = fuzz.gaussmf(population_density.universe, mean=80, sigma=40)
+population_density['medium'] = fuzz.gaussmf(population_density.universe, mean=11, sigma=2)
+population_density['high'] = fuzz.gaussmf(population_density.universe, mean=28, sigma=6)
+population_density['very_high'] = fuzz.gaussmf(population_density.universe, mean=80, sigma=20)
 population_density['highest'] = fuzz.smf(population_density.universe, a=100, b=120)    
 
 
 # Air Pollution Membership Functions
 air_pollution['good'] = fuzz.zmf(air_pollution.universe, a=10, b=15)
-air_pollution['moderate'] = fuzz.gaussmf(air_pollution.universe, mean=25, sigma=9) #[12, 20, 30, 38]
+air_pollution['moderate'] = fuzz.gaussmf(air_pollution.universe, mean=25, sigma=7)
 air_pollution['unhealthy'] = fuzz.smf(air_pollution.universe, a=35, b=50)   
 
 # Vegetation Cover Membership Functions
 veg_cover['low'] = fuzz.zmf(veg_cover.universe, a=15, b=30)
-veg_cover['medium'] = fuzz.gaussmf(veg_cover.universe, mean=50, sigma=17) #[25, 40, 60, 75]
+veg_cover['medium'] = fuzz.gaussmf(veg_cover.universe, mean=50, sigma=15)
 veg_cover['high'] = fuzz.smf(veg_cover.universe, a=65, b=85)  
 
 # Need for Action Membership Functions
