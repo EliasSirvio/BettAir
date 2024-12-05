@@ -3,7 +3,7 @@ from scipy.spatial import cKDTree
 from map_utils import linearly_independent, barycentric_coordinates
 
 class Station:
-    def __init__(self, location: tuple[int, int], air_quality: int, population_density: int, veg_cover: int) -> None:
+    def __init__(self, location: tuple[int, int], air_quality: float, population_density: float, veg_cover: float) -> None:
         self.location = location
         self.data = np.array([air_quality, population_density, veg_cover])
 
@@ -56,7 +56,7 @@ class Map:
     def location_is_occupied(self, location: tuple[int, int]) -> bool:
         return location in self.data
 
-    def get_data(self, location: tuple[int, int]) -> tuple[int, int, int]:
+    def get_data(self, location: tuple[int, int]) -> tuple[float, float, float]:
         """
         Function to query data from a certain location on the map, 
         interpolating the data from the 3 closest stations.
