@@ -3,7 +3,6 @@ from scipy.spatial import cKDTree
 from openaq_api import get_air_quality_and_coordinates
 from scipy.interpolate import Rbf  # Optional for advanced interpolation
 
-
 class Station:
     def __init__(self, location_id: int, population_density: int, veg_cover: int) -> None:
         """
@@ -14,6 +13,8 @@ class Station:
         - population_density (int): Population density (inhabitants/ha).
         - veg_cover (int): Vegetation cover (%).
         """
+        self.location_id = location_id  # Store the location_id as an instance attribute
+
         air_quality, coordinates = get_air_quality_and_coordinates(location_id)
         
         if coordinates:
@@ -27,20 +28,19 @@ class Station:
         
         self.data = np.array([
             air_quality if air_quality is not None else -1,  # Air Quality (µg/m³)
-            population_density,                             # Population Density (inhabitants/ha)
-            veg_cover                                       # Vegetation Cover (%)
+            population_density,                              # Population Density (inhabitants/ha)
+            veg_cover                                        # Vegetation Cover (%)
         ])
     
     def __str__(self) -> str:
         aq, pd, vc = self.data
         return f"""
-    Station at ({self.latitude:.4f}, {self.longitude:.4f}):
-        Air Quality =           {aq}
-        Population Density =    {pd}
-        Vegetation Cover =      {vc}
-        """
-
-
+    Station ID: {self.location_id}
+    Location: ({self.latitude:.4f}, {self.longitude:.4f})
+    Air Quality =           {aq}
+    Population Density =    {pd}
+    Vegetation Cover =      {vc}
+    """
 
 class Map:
     def __init__(self, stations: np.ndarray, size: int=100, verbose: bool=False) -> None:
@@ -60,10 +60,10 @@ class Map:
         self.data = np.array([station.data for station in stations])  # Shape: (n_stations, 3)
         
         # Determine min and max for normalization
-        self.min_lat = real_coordinates[:,0].min()
-        self.max_lat = real_coordinates[:,0].max()
-        self.min_lon = real_coordinates[:,1].min()
-        self.max_lon = real_coordinates[:,1].max()
+        self.min_lat = real_coordinates[:, 0].min()
+        self.max_lat = real_coordinates[:, 0].max()
+        self.min_lon = real_coordinates[:, 1].min()
+        self.max_lon = real_coordinates[:, 1].max()
         
         if self.verbose:
             print(f"Latitude range: {self.min_lat} to {self.max_lat}")
@@ -71,8 +71,8 @@ class Map:
         
         # Normalize coordinates to [0, size)
         self.normalized_coordinates = np.zeros_like(real_coordinates, dtype=float)
-        self.normalized_coordinates[:,0] = (real_coordinates[:,0] - self.min_lat) / (self.max_lat - self.min_lat) * (size - 1)
-        self.normalized_coordinates[:,1] = (real_coordinates[:,1] - self.min_lon) / (self.max_lon - self.min_lon) * (size - 1)
+        self.normalized_coordinates[:, 0] = (real_coordinates[:, 0] - self.min_lat) / (self.max_lat - self.min_lat) * (size - 1)
+        self.normalized_coordinates[:, 1] = (real_coordinates[:, 1] - self.min_lon) / (self.max_lon - self.min_lon) * (size - 1)
         
         if self.verbose:
             print(f"Normalized coordinates:\n{self.normalized_coordinates}")
@@ -114,14 +114,32 @@ class Map:
         Interpolate data for a given location using the n closest stations with Inverse Distance Weighting (IDW).
         
         Parameters:
-        - location (tuple[float, float]): The (x, y) location on the map grid (float-based).
+        - location (tuple[float, float]): The (latitude, longitude) location in real coordinates.
         - n_neighbors (int): Number of nearest neighbors to consider for interpolation.
         
         Returns:
         - tuple[float, int, int]: Interpolated (air_quality, population_density, veg_cover)
         """
-        # Query KD-Tree for nearest neighbors
-        distances, indices = self.kd_tree.query(location, k=n_neighbors)
+        # Normalize the input coordinates
+        latitude, longitude = location
+        lat_range = self.max_lat - self.min_lat
+        lon_range = self.max_lon - self.min_lon
+
+        # Avoid division by zero
+        if lat_range == 0:
+            normalized_lat = 0
+        else:
+            normalized_lat = (latitude - self.min_lat) / lat_range * (self.size - 1)
+        
+        if lon_range == 0:
+            normalized_lon = 0
+        else:
+            normalized_lon = (longitude - self.min_lon) / lon_range * (self.size - 1)
+        
+        normalized_location = (normalized_lat, normalized_lon)
+        
+        # Query KD-Tree for nearest neighbors using normalized coordinates
+        distances, indices = self.kd_tree.query(normalized_location, k=n_neighbors)
         
         # Handle case when only one neighbor is found
         if n_neighbors == 1:
@@ -142,27 +160,27 @@ class Map:
         interpolated = weighted_sum / sum_weights
         
         return tuple(interpolated)
-
-def barycentric_coordinates(triangle: np.ndarray, point: tuple[float, float]):
-    """
-    Calculate the barycentric coordinates of a point with respect to a triangle.
     
-    Parameters:
-    triangle : array-like, shape (3, 2)
-        The vertices of the triangle.
-    point : tuple[float, float]
-        The point for which to calculate the barycentric coordinates.
+    def barycentric_coordinates(triangle: np.ndarray, point: tuple[float, float]):
+        """
+        Calculate the barycentric coordinates of a point with respect to a triangle.
+        
+        Parameters:
+        triangle : array-like, shape (3, 2)
+            The vertices of the triangle.
+        point : tuple[float, float]
+            The point for which to calculate the barycentric coordinates.
+        
+        Returns:
+        array, shape (3,)
+            The barycentric coordinates of the point.
+        """
+        triangle = np.array(triangle)
+        assert triangle.shape == (3, 2), f"Triangle had wrong shape! It should have shape (3,2) but had shape {triangle.shape}."
     
-    Returns:
-    array, shape (3,)
-        The barycentric coordinates of the point.
-    """
-    triangle = np.array(triangle)
-    assert triangle.shape == (3, 2), f"Triangle had wrong shape! It should have shape (3,2) but had shape {triangle.shape}."
-
-    T = np.vstack((triangle.T, np.ones((1, 3))))
-    v = np.append(point, 1)
-    try:
-        return np.linalg.solve(T, v)
-    except np.linalg.LinAlgError:
-        raise ValueError("Triangle vertices are not linearly independent!")
+        T = np.vstack((triangle.T, np.ones((1, 3))))
+        v = np.append(point, 1)
+        try:
+            return np.linalg.solve(T, v)
+        except np.linalg.LinAlgError:
+            raise ValueError("Triangle vertices are not linearly independent!")
