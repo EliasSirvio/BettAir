@@ -50,7 +50,7 @@ need_for_action['high'] = fuzz.smf(need_for_action.universe, a=60, b=80)
 
 # Fuzzy rules
 rule1 = ctrl.Rule(
-    air_pollution['unhealthy'] & (population_density['very_high'] | population_density['high']),
+    air_pollution['unhealthy'] & (population_density['very_high'] | population_density['high'] | population_density['highest']),
     need_for_action['high']
 )
 
