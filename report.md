@@ -38,7 +38,7 @@ Click [here](./images/membership_functions/before_evaluation) for plots of our e
 
 #### After interview:
 
-During the interview, we got some good tips on how we could improve our membership functions. For example, the membership function for population density is now adapted to the scale used in the Swiss Confederation’s official GIS [2].
+During the interview, we got some good tips on how we could improve our membership functions. For example, the membership function for population density is now adapted to the scale used in the Swiss Confederation’s official GIS [2]:
 
 ![Population Density Scale](./images/pop_dens_scale.png)
 
@@ -50,19 +50,36 @@ You can find our updated membership functions [here](./images/membership_functio
 
 BettAir’s fuzzy rules constitute the core of the software’s logical reasoning with the input data. As the city planner approved them as a reasonable way to determine the need for green areas, they remained almost unchanged after the evaluation interview: 
 
-1. IF air pollution is ‘unhealthy’ AND population density is (‘high’ OR ‘very high’ OR ‘highest’) 
+#### Rule 1
+```
+IF air pollution is ‘unhealthy’ AND population density is (‘high’ OR ‘very high’ OR ‘highest’)
 THEN need for action is ‘high’
-2. IF air pollution is ‘unhealthy’ AND population density is (‘low’ OR ‘medium’) 
+```
+#### Rule 2
+```
+IF air pollution is ‘unhealthy’ AND population density is (‘low’ OR ‘medium’) 
 THEN need for action is ‘medium’
-3. IF air pollution is ‘unhealthy’ AND population density is ‘very low’ 
+```
+#### Rule 3
+```
+IF air pollution is ‘unhealthy’ AND population density is ‘very low’ 
 THEN need for action is ‘low’
-4. IF air pollution is ‘moderate’ 
+```
+#### Rule 4
+```
+IF air pollution is ‘moderate’ 
 THEN need for action is ‘medium’
-5. IF air pollution is ‘clean’ 
+```
+#### Rule 5
+```
+IF air pollution is ‘clean’ 
 THEN need for action is ‘low’
-6. IF vegetation cover is ‘high’ 
+```
+#### Rule 6
+```
+IF vegetation cover is ‘high’ 
 THEN need for action is ‘low’
-
+```
 As the only post-evaluation change, Rule 1 had to be updated to handle the new term ‘highest’, as our new scale for air_pollution required six terms instead of our early implementation with only five.
 
 ### OpenAQ
