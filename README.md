@@ -1,22 +1,17 @@
-# Fuzzy logic tutorial
+# BettAir: A Fuzzy Recommender System for Strategic Placement of Green Areas
 
-This tutorial is part of the course _Fuzzy Sets and Systems_
+This project is part of the course _Fuzzy Sets and Systems_
 for the [Swiss Joint Master of Science in Computer Science](https://mcs.unibnf.ch/). 
-It introduces the use of fuzzy logic algorithms in Python, 
-utilizing the [`scikit-fuzzy`](https://scikit-fuzzy.github.io/scikit-fuzzy/) library.
 
-The tutorial instructions are based on examples provided by the `scikit-fuzzy` library.
 
-## Requirements
-
-Python version 3.9, 3.10, or 3.11 (3.12 not yet supported).
-
-## Reports
-
-- [Report](./report.md)
-- [Evaluation Interview](./interview_report.md)
+## Report
+Please refer to the [Project Report](./report.md) for a full description of our project.
 
 ## Installation
+
+### Requirements
+
+Python version 3.9, 3.10, or 3.11 (3.12 not yet supported).
 
 > [!NOTE]
 > This guide assists in setting up JupyterLab and Python dependencies. 
