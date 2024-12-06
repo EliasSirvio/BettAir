@@ -1,8 +1,7 @@
 # BettAir: A Fuzzy Recommender System for Strategic Placement of Green Areas
 
-This project is part of the course _Fuzzy Sets and Systems_
-for the [Swiss Joint Master of Science in Computer Science](https://mcs.unibnf.ch/). 
-
+This project is done as part of the course _Fuzzy Sets and Systems_
+for the [Swiss Joint Master of Science in Computer Science](https://mcs.unibnf.ch/)
 
 ## Report
 Please refer to the [Project Report](./report.md) for a full description of our project.
