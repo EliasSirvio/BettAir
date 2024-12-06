@@ -41,7 +41,7 @@ During the interview, we got some good tips on how we could improve our membersh
 
 We also changed the shape of our membership functions to gaussian curves, to reduce the effect of threshold values (e.g. population going from 6 to 7 inhabitants per ha, drastically changing the output). With smoother membership functions, the system also outputs a heatmap with smoother edges.
 
-You can find our updated membership functions [here](./images/membership_functions/after_evaluation)
+You can find our updated membership functions [here](./images/membership_functions/after_evaluation).
 
 ### Rules
 
