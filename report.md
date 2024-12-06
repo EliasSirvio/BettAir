@@ -32,7 +32,7 @@ The idea is that this can provide a layer that can be plotted on top of a real w
 
 #### Before interview:
 For our initial membership functions, we made an “educated guess” on what was considered high and low values for the different inputs, with triangles and trapezoids as shapes (using scikit-fuzzy’s functions .trimf() and .trapmf()).
-Click [here](.\images\before_evaluation) for plots of our early membership functions.
+Click [here](./images/before_evaluation) for plots of our early membership functions.
 
 *(Insert relative reference to memb.func plots)*
 
