@@ -10,14 +10,11 @@ Please refer to the [Project Report](./report.md) for a full description of our 
 
 ### Requirements
 
-Python version 3.9, 3.10, or 3.11 (3.12 not yet supported).
+Python version 3.13
 
 > [!NOTE]
-> This guide assists in setting up JupyterLab and Python dependencies. 
+> This guide assists in setting up Python dependencies. 
 > If you're already comfortable with Python, feel free to use your preferred setup process.
-
-First, **fork and clone this repository**, or download it manually to your computer. 
-Then open a terminal inside the repository and proceed.
 
 ### Linux / macOS setup
 
@@ -46,16 +43,8 @@ With the virtual environment activated, **install the required dependencies**:
 ```
 pip install --upgrade pip
 pip install -r requirements.txt
-pip install jupyterlab
 ```
 
-5. **Start JupyterLab**:
-
-```bash
-jupyter lab
-```
-
-This should open a local web interface (or display a URL) for JupyterLab, where you can access the tutorial notebooks.
 
 
 ### Windows setup
@@ -88,13 +77,31 @@ With the virtual environment activated, **install the required dependencies**:
 ```
 pip install --upgrade pip
 pip install -r requirements.txt
-pip install jupyterlab
+
 ```
 
-5. **Start JupyterLab**:
+4. **Install libraries**
 
-```bash
-jupyter lab
+To run the bokeh_plot_app, run the following commands:
+
 ```
+CD bokeh_plot_app
+python main.py
 
-This command should open a local web interface (or display a URL) for JupyterLab, where you can access the tutorial notebooks.
+```
+The program will then add the stations and generate the map. The default location of the app is London. 
+If you wish to try with another location, modify bokeh_plot_app/main.py with for example:
+
+real_location_ids = [
+    1541052, 11587, 784135, 10837, 784137, 11588
+]
+
+This will give you a map of the airquality in Belgrade.
+
+To run the offline version:
+
+```
+CD offline_app
+python main.py
+
+```

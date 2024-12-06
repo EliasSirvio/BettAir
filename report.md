@@ -24,7 +24,7 @@ Based on the stations placed on the map, we use barycentric interpolation of the
 
 The output variable of our fuzzy system is called need_for_action (%), which is mapped to a color-scale to create the heat map. When the need_for_action is calculated throughout the entire map, we get a figure looking something like this:
 
-*(Insert image)*
+![Heatmap Output](images/offline_app_output.png "Heatmap Output")
 
 The idea is that this can provide a layer that can be plotted on top of a real world map, indicating what parts of a city that are in need of attention when it comes to green areas.
 
@@ -32,15 +32,16 @@ The idea is that this can provide a layer that can be plotted on top of a real w
 
 #### Before interview:
 For our initial membership functions, we made an “educated guess” on what was considered high and low values for the different inputs, with triangles and trapezoids as shapes (using scikit-fuzzy’s functions .trimf() and .trapmf()).
-Click [here](.\Membership Functions) for plots of our early membership functions.
 
-*(Insert relative reference to memb.func plots)*
+Click [here](./images/membership_functions/before_evaluation) for plots of our early membership functions.
 
 #### After interview:
 
 During the interview, we got some good tips on how we could improve our membership functions. For example, the membership function for population density is now adapted to the scale used in the Swiss Confederation’s official GIS [2].
 
 We also changed the shape of our membership functions to gaussian curves, to reduce the effect of threshold values (e.g. population going from 6 to 7 inhabitants per ha, drastically changing the output). With smoother membership functions, the system also outputs a heatmap with smoother edges.
+
+You can find our updated membership functions [here](./images/membership_functions/after_evaluation).
 
 ### Rules
 
