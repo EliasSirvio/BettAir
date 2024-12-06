@@ -7,7 +7,7 @@ from map import Map, Station
 MAX_PD = 151
 """Maximum value for population density (exclusive)\n
 Unit: µg/m³ of the pollutor pm2.5"""
-MAX_AP = 151
+MAX_AP = 71
 """Maximum value for air pollution (exclusive)\n
 Unit: inhabitants/ha""" 
 MAX_VC = 101
@@ -109,15 +109,19 @@ def generate_random_stations(n_stations: int, map_size: int, max_ap: int = MAX_A
         map_size:
             Length of map along one axis
         max_ap:
-            Maximum value for randomly drawn air pollution data
+            Maximum value for randomly drawn air pollution data. Should be less than 151.
         max_pd:
-            Maximum value for randomly drawn population density data
+            Maximum value for randomly drawn population density data. Should be less than 151.
         max_vc:
-            Maximum value for randomly drawn vegetation cover data
+            Maximum value for randomly drawn vegetation cover data. Should be less than 101.
     
     Returns:
         An np.array of stations
     """    
+    assert max_ap <= MAX_AP, f"max_ap can not be >{MAX_AP}"
+    assert max_pd <= MAX_PD, f"max_pd can not be >{MAX_PD}"
+    assert max_vc <= MAX_VC, f"max_vc can not be >{MAX_VC}"
+
     # Random values for stations
     random_locations = generate_unique_random_locations(n_locations=n_stations, map_size=map_size)
     random_aq = np.random.randint(low=0, high=max_ap, size=n_stations)
