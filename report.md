@@ -4,13 +4,14 @@
 
 According to the ‘world health organization’ (WHO) air pollution is one of the leading environmental risk factors for disease. BettAir is an advanced fuzzy recommender system designed to enhance urban air quality management by integrating data from air quality sensors with additional information such as population density. The system generates a comprehensive heatmap that identifies priority areas where urban planners should focus their efforts to improve air quality. 
 
-*“Reliable estimates of exposure to air pollutants and related impacts on health are key to  better inform policy-makers, as well as other health and development partners.”* p.19 
+*“Reliable estimates of exposure to air pollutants and related impacts on health are key to  better inform policy-makers, as well as other health and development partners.”* ([1], p.19) 
 
 By analyzing various factors, BettAir provides tailored recommendations based on the specific conditions of each area. For instance, in densely populated regions with limited green spaces, the system may prioritize the creation of parks and vegetation to enhance air quality. Conversely, in areas located near major roads, BettAir might suggest implementing measures to reduce traffic-related emissions, such as optimizing traffic flow or promoting the use of public transportation.
 
 This adaptive approach ensures that interventions are both targeted and effective, addressing the unique air quality challenges of different urban environments. By leveraging real-time sensor data and contextual information, BettAir supports informed decision-making, ultimately contributing to healthier and more sustainable cities.
 
-## The System:
+
+## The System
 
 ### Heat map
 The main output of BettAir is a heatmap that can be used as a layer in GIS-applications (Geographic Information Systems). The heatmap includes the “Stations”, where it takes its input data from, and the output values as a continuous colormap.
@@ -31,13 +32,15 @@ The idea is that this can provide a layer that can be plotted on top of a real w
 ### Membership functions
 
 #### Before interview:
-For our initial membership functions, we made an “educated guess” on what was considered high and low values for the different inputs, with triangles and trapezoids as shapes (using scikit-fuzzy’s functions .trimf() and .trapmf()).
+For our initial membership functions, we made an “educated guess”  (e.g. Wikipedia) on what was considered high and low values for the different inputs, with triangles and trapezoids as shapes (using scikit-fuzzy’s functions `.trimf()` and `.trapmf()`).
 
 Click [here](./images/membership_functions/before_evaluation) for plots of our early membership functions.
 
 #### After interview:
 
 During the interview, we got some good tips on how we could improve our membership functions. For example, the membership function for population density is now adapted to the scale used in the Swiss Confederation’s official GIS [2].
+
+![Population Density Scale](./images/pop_dens_scale.png)
 
 We also changed the shape of our membership functions to gaussian curves, to reduce the effect of threshold values (e.g. population going from 6 to 7 inhabitants per ha, drastically changing the output). With smoother membership functions, the system also outputs a heatmap with smoother edges.
 
