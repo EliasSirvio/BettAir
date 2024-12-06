@@ -9,7 +9,8 @@ from heatmap_utils_api import (run_simulation,
     get_air_pollution_label,
     get_population_density_label,
     get_veg_cover_label,
-    get_need_for_action_label)
+    get_need_for_action_label,
+    get_recommendation)
 from tqdm import tqdm
 import random
 import logging
@@ -39,7 +40,7 @@ real_location_ids = [
 stations = []
 for loc_id in real_location_ids[:N_STATIONS]:
     population_density = random.randint(10, 80)  # Replace with actual data if available
-    veg_cover = random.randint(1, 5)            # Replace with actual data if available
+    veg_cover = random.randint(1, 80)            # Replace with actual data if available
     try:
         station = Station(location_id=loc_id, population_density=population_density, veg_cover=veg_cover)
         stations.append(station)
@@ -200,6 +201,13 @@ station_vc_labels = [get_veg_cover_label(value) for value in station_vc]
 station_need_action = [get_need_for_action_at_station(station, heatmap, map_obj) for station in stations]
 station_need_action_labels = [get_need_for_action_label(value) for value in station_need_action]
 
+# Compute recommendations for each station
+station_recommendations = [
+    get_recommendation(aq_label, pd_label, vc_label, nfa_label)
+    for aq_label, pd_label, vc_label, nfa_label
+    in zip(station_aq_labels, station_pd_labels, station_vc_labels, station_need_action_labels)
+]
+
 # Update ColumnDataSource to include 'need_for_action'
 source = ColumnDataSource(data=dict(
     latitude=station_latitudes,
@@ -211,7 +219,8 @@ source = ColumnDataSource(data=dict(
     vegetation_cover=station_vc,
     vegetation_cover_label=station_vc_labels,
     need_for_action=station_need_action,
-    need_for_action_label=station_need_action_labels
+    need_for_action_label=station_need_action_labels,
+    recommendation=station_recommendations
 ))
 
 # Add station markers using 'scatter()' instead of deprecated 'circle()'
@@ -233,7 +242,8 @@ hover = HoverTool(
         ("Air Quality (PM2.5)", "@air_quality (@air_quality_label)"),
         ("Population Density", "@population_density (@population_density_label)"),
         ("Vegetation Cover", "@vegetation_cover (@vegetation_cover_label)"),
-        ("Need for Action", "@need_for_action (@need_for_action_label)")
+        ("Need for Action", "@need_for_action (@need_for_action_label)"),
+        ("Recommendation", "@recommendation{safe}")
     ],
     renderers=[station_renderer]  # Ensure hover applies only to stations
 )

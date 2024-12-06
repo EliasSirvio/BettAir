@@ -292,3 +292,44 @@ def get_need_for_action_label(value):
     return max_label
 
     plt.show()
+
+def get_recommendation(air_quality_label: str, population_density_label: str, veg_cover_label: str, need_for_action_label: str) -> str:
+    """
+    Provides a recommendation string based on the fuzzy labels for air pollution,
+    population density, vegetation cover, and need for action.
+    """
+
+    # Start with need_for_action, as it's the primary driver of urgency
+    if need_for_action_label == "High":
+        # High need for action requires strong measures
+        if veg_cover_label in ["Low", "Very Low"]:
+            return ("Need for action is high and vegetation cover is low.<br> "
+                    "Consider creating more green areas (planting trees, building parks)<br> "
+                    "to improve air quality and reduce heat islands.<br>")
+        else:
+            # Veg cover is medium or high, so focus on pollution sources
+            return ("Need for action is high. Vegetation cover is already moderate or high.<br> "
+                    "Focus on reducing pollution sources: implement traffic calming measures,<br> "
+                    "promote public transport, limit industrial emissions, or encourage cleaner technologies.<br>")
+    
+    elif need_for_action_label == "Medium":
+        # Moderate need for action suggests incremental changes
+        # Consider air pollution and population density to guide suggestions
+        if air_quality_label in ["Moderate", "Unhealthy"] and population_density_label in ["High", "Very High", "Highest"]:
+            return ("Need for action is medium, and conditions suggest moderate pollution in a dense area.<br> "
+                    "Implement partial traffic restrictions, promote cycling and walking, or encourage telecommuting.<br> "
+                    "Increase green infrastructure moderately.")
+        elif veg_cover_label in ["Low", "Very Low"]:
+            return ("Need for action is moderate, and vegetation cover is low.<br> "
+                    "Consider adding more vegetation (green roofs, community gardens)<br> "
+                    "to improve local environmental quality.")
+        else:
+            return ("Need for action is medium. Conditions are not severe, but consider incremental improvements:<br> "
+                    "encourage cleaner transport, add some green areas, and monitor pollution sources closely.")
+    
+    else:  # Need for action is low
+        # Conditions are relatively good
+        return ("Need for action is low. Current environmental strategies seem effective.<br> "
+                "Maintain your approaches, continue monitoring air quality and population density,<br> "
+                "and preserve or slightly enhance green spaces as needed.")
+
