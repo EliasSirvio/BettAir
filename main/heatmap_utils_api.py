@@ -1,7 +1,7 @@
 import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
-from map import Map, Station
+from mapApi import Map, Station
 import logging
 from skfuzzy import interp_membership
 
@@ -90,19 +90,50 @@ ctrl_sys = ctrl.ControlSystem([
     rule1, rule2, rule3, rule4, rule5, rule6 
 ])
 
-simulation = ctrl.ControlSystemSimulation(ctrl_sys)
 
-def run_simulation(query_location: tuple[int, int], map: Map, sim = simulation):
+def run_simulation(query_location: tuple[float, float], map_obj: Map) -> float:
     """
-    Run simulation, given query location on the given map
+    Run simulation, given query location on the given map.
+    
+    Parameters:
+    - query_location (tuple[float, float]): The (x, y) location on the map grid (float-based).
+    - map_obj (Map): The map object containing stations and data.
+    
+    Returns:
+    - float: Simulated 'need_for_action' value.
     """
-    air_pollution, population_density, veg_cover = map.get_data(query_location)
-    sim.input['veg_cover'] = veg_cover                      # Vegetation Cover (%)
-    sim.input['air_pollution'] = air_pollution              # µg/m³
-    sim.input['population_density'] = population_density    # people/km² (Very High)
-    sim.compute()
-    return sim.output['need_for_action']
-
+    # Retrieve interpolated data
+    air_pollution_val, population_density_val, veg_cover_val = map_obj.get_data(location=query_location)
+    
+    # Handle cases where data is unavailable
+    if air_pollution_val == -1 and population_density_val == -1 and veg_cover_val == -1:
+        logging.warning(f"Data unavailable for location {query_location}. Assigning 'need_for_action' = 0.")
+        return 0.0  # Default value when data is unavailable
+    
+    try:
+        # Instantiate a new simulation object for each run
+        sim = ctrl.ControlSystemSimulation(ctrl_sys)
+        
+        # Input the data into the simulation
+        sim.input['veg_cover'] = veg_cover_val                      # Vegetation Cover (%)
+        sim.input['air_pollution'] = air_pollution_val              # µg/m³
+        sim.input['population_density'] = population_density_val    # inhabitants/ha
+        
+        # Compute the simulation
+        sim.compute()
+        
+        # Safely retrieve 'need_for_action' with a default value
+        need_action = sim.output.get('need_for_action', 0.0)
+        
+        # Log if 'need_for_action' is not set
+        if 'need_for_action' not in sim.output:
+            logging.warning(f"'need_for_action' not found in simulation output for location {query_location}. Assigning 0.")
+        
+        return need_action
+    
+    except Exception as e:
+        logging.error(f"Error during simulation at location {query_location}: {e}")
+        return 0.0  # Assign a default or error value
 
 def generate_random_stations(n_stations: int, map_size: int, max_ap: int = MAX_AP, max_pd: int = MAX_PD, max_vc: int = MAX_VC) -> np.ndarray[Station]:
     """

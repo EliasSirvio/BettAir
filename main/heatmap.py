@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from map import Map
-from fuzzy_utils import run_simulation, generate_random_stations
+from heatmap_utils import run_simulation, generate_random_stations
 from tqdm import tqdm
 
 if __name__ == "__main__":

@@ -4,8 +4,8 @@ from bokeh.models import (
     ColorBar, LinearColorMapper, BasicTicker, HoverTool,
     ColumnDataSource, LabelSet, GMapOptions
 )
-from map import Map, Station
-from fuzzy_utils import (run_simulation,
+from mapApi import Map, Station
+from heatmap_utils_api import (run_simulation,
     get_air_pollution_label,
     get_population_density_label,
     get_veg_cover_label,

@@ -12,61 +12,53 @@ class Station:
     def __str__(self) -> str:
         aq, pd, vc = self.data
         return f"""
-    Station ID: {self.location_id}
-    Location: ({self.latitude:.4f}, {self.longitude:.4f})
-    Air Quality =           {aq}
-    Population Density =    {pd}
-    Vegetation Cover =      {vc}
-    """
+    Station at {self.location}:
+        Air Quality =           {aq}
+        Population Density =    {pd}
+        Vegetation Cover =      {vc}
+        """
+
+import numpy as np
+from scipy.spatial import cKDTree
+
+# Assuming Station and linearly_independent, barycentric_coordinates are defined elsewhere:
+# from your_module import Station, linearly_independent, barycentric_coordinates
 
 class Map:
-    def __init__(self, stations: np.ndarray, size: int=100, verbose: bool=False) -> None:
+    def __init__(self, stations: np.array, size: int = 100, verbose: bool = False) -> None:
         """
-        Initialize the Map with a set of stations.
-        
+        Map keeping data from sensor stations at certain locations on a 2D-grid.
+        Can interpolate data from surrounding stations to get data for any point on the map 
+
         Parameters:
-        - stations (np.ndarray): Array of Station objects.
-        - size (int): Size of the heatmap grid (default 100).
-        - verbose (bool): Enable verbose output.
+            stations:
+                Array of stations that are located on the map.
+            size:
+                Length of the sides of the map. The map is square-shaped.
+            verbose:
+                Set to True to make the map print its processing to the terminal
         """
         self.size = size
+        self.stations = np.empty((0))
+        self.data = {}
+        self.add_stations(stations)  # Fills self.stations and self.data
         self.verbose = verbose
-        
-        # Extract real coordinates from stations
-        real_coordinates = np.array([[station.latitude, station.longitude] for station in stations])
-        self.data = np.array([station.data for station in stations])  # Shape: (n_stations, 3)
-        
-        # Determine min and max for normalization
-        self.min_lat = real_coordinates[:, 0].min()
-        self.max_lat = real_coordinates[:, 0].max()
-        self.min_lon = real_coordinates[:, 1].min()
-        self.max_lon = real_coordinates[:, 1].max()
-        
-        if self.verbose:
-            print(f"Latitude range: {self.min_lat} to {self.max_lat}")
-            print(f"Longitude range: {self.min_lon} to {self.max_lon}")
-        
-        # Normalize coordinates to [0, size)
-        self.normalized_coordinates = np.zeros_like(real_coordinates, dtype=float)
-        self.normalized_coordinates[:, 0] = (real_coordinates[:, 0] - self.min_lat) / (self.max_lat - self.min_lat) * (size - 1)
-        self.normalized_coordinates[:, 1] = (real_coordinates[:, 1] - self.min_lon) / (self.max_lon - self.min_lon) * (size - 1)
-        
-        if self.verbose:
-            print(f"Normalized coordinates:\n{self.normalized_coordinates}")
-        
-        # Build KD-Tree for efficient spatial queries
-        self.kd_tree = cKDTree(self.normalized_coordinates)
-    
+        self.kd_tree = cKDTree(data=list(self.data.keys()))  # For efficiently finding closest stations
+
     def __str__(self) -> str:
-        return f"Map contains {len(self.normalized_coordinates)} stations."
-    
-    def add_station(self, station: Station) -> None:
-        assert all(-1 < coordinate < self.size for coordinate in station.location), f"Tried to add station with coordinates {station.location}, but the map's size is only {self.size}."
+        return "Map contains the following stations:\n" + "\n".join([str(station) for station in self.stations])
+
+    def __repr__(self) -> str:
+        return str(self.data)
+
+    def add_station(self, station: 'Station') -> None:
+        assert all(-1 < coordinate < self.size for coordinate in station.location), \
+            f"Tried to add station with coordinates {station.location}, but the map's size is only {self.size}."
         assert station.location not in self.data, "Cannot add multiple stations at the same coordinates."
         self.stations = np.append(self.stations, station)
         self.data[station.location] = station.data
-    
-    def add_stations(self, stations: list[Station]) -> None:
+
+    def add_stations(self, stations: 'list[Station]') -> None:
         for station in stations:
             self.add_station(station)
 
@@ -75,76 +67,73 @@ class Map:
 
     def get_data(self, location: tuple[int, int]) -> tuple[int, int, int]:
         """
-        Interpolate data for a given location using the n closest stations with Inverse Distance Weighting (IDW).
-        
-        Parameters:
-        - location (tuple[float, float]): The (latitude, longitude) location in real coordinates.
-        - n_neighbors (int): Number of nearest neighbors to consider for interpolation.
-        
-        Returns:
-        - tuple[float, int, int]: Interpolated (air_quality, population_density, veg_cover)
-        """
-        # Normalize the input coordinates
-        latitude, longitude = location
-        lat_range = self.max_lat - self.min_lat
-        lon_range = self.max_lon - self.min_lon
+        Function to query data from a certain location on the map,
+        interpolating the data from the 3 closest stations.
 
-        # Avoid division by zero
-        if lat_range == 0:
-            normalized_lat = 0
-        else:
-            normalized_lat = (latitude - self.min_lat) / lat_range * (self.size - 1)
-        
-        if lon_range == 0:
-            normalized_lon = 0
-        else:
-            normalized_lon = (longitude - self.min_lon) / lon_range * (self.size - 1)
-        
-        normalized_location = (normalized_lat, normalized_lon)
-        
-        # Query KD-Tree for nearest neighbors using normalized coordinates
-        distances, indices = self.kd_tree.query(normalized_location, k=n_neighbors)
-        
-        # Handle case when only one neighbor is found
-        if n_neighbors == 1:
-            indices = [indices]
-            distances = [distances]
-        
-        # Check if any station is exactly at the query location
-        exact_match = np.isclose(distances, 0)
-        if any(exact_match):
-            matched_index = indices[exact_match][0]
-            return tuple(self.data[matched_index])
-        
-        # Compute weights using Inverse Distance Weighting (IDW)
-        weights = 1 / (distances ** 2 + 1e-6)  # Adding a small value to prevent division by zero
-        weighted_data = self.data[indices].T * weights
-        weighted_sum = np.sum(weighted_data, axis=1)
-        sum_weights = np.sum(weights)
-        interpolated = weighted_sum / sum_weights
-        
-        return tuple(interpolated)
-    
-    def barycentric_coordinates(triangle: np.ndarray, point: tuple[float, float]):
-        """
-        Calculate the barycentric coordinates of a point with respect to a triangle.
-        
         Parameters:
-        triangle : array-like, shape (3, 2)
-            The vertices of the triangle.
-        point : tuple[float, float]
-            The point for which to calculate the barycentric coordinates.
-        
+            location : (x, y)
+                Point of query on the map.
+
         Returns:
-        array, shape (3,)
-            The barycentric coordinates of the point.
+            A tuple (air_quality, population_density, vegetation_cover) for the queried location.
         """
-        triangle = np.array(triangle)
-        assert triangle.shape == (3, 2), f"Triangle had wrong shape! It should have shape (3,2) but had shape {triangle.shape}."
-    
-        T = np.vstack((triangle.T, np.ones((1, 3))))
-        v = np.append(point, 1)
-        try:
-            return np.linalg.solve(T, v)
-        except np.linalg.LinAlgError:
-            raise ValueError("Triangle vertices are not linearly independent!")
+
+        # If there is a station exactly at the queried location
+        if location in self.data:
+            return self.data[location]
+
+        if self.verbose:
+            print(f"Calculating the data for {location}\nThe closest triangle of stations was:")
+
+        n_stations = 3
+
+        # Build reference triangle for interpolation
+        while True:
+            reference_triangle = np.zeros((0, 2))
+            # Find closest stations
+            _, indices = self.kd_tree.query(location, n_stations)
+            # We can always use the 2 closest, since stations can't be at the same location
+            lin_indep_indices = np.concatenate((indices[:2], indices[-1:]))
+            closest_stations = self.stations[lin_indep_indices]
+
+            for station in closest_stations:
+                reference_triangle = np.vstack((reference_triangle, np.array(station.location)))
+
+            # Break condition: if these points form a valid triangle for interpolation
+            if linearly_independent(triangle=reference_triangle):
+                break
+
+            # If we don't have a valid triangle yet, try adding another station
+            n_stations += 1
+
+        # Extract data for interpolation
+        triangle_data = np.empty((3, 0))
+        for station in closest_stations:
+            if self.verbose:
+                print(station)
+            triangle_data = np.hstack((triangle_data, station.data.reshape(-1, 1)))
+
+        # Interpolate between the 3 triangle vertices, using barycentric coordinates
+        bar_coordinates = barycentric_coordinates(reference_triangle, location)
+        data = (triangle_data @ bar_coordinates).reshape(3,)
+        aq, pd, vc = data
+
+        if self.verbose:
+            print(f"The barycentric coordinates were calculated to be:\n{bar_coordinates}"
+                  f"\nThis gave the following data:\n{aq=}\n{pd=}\n{vc=}")
+
+        return data
+
+
+if __name__ == "__main__":
+    # Example usage
+    s1 = Station((2, 5), air_quality=2, population_density=3, veg_cover=1)
+    s2 = Station((3, 7), air_quality=2, population_density=2, veg_cover=2)
+    s3 = Station((1, 3), air_quality=1, population_density=2, veg_cover=2)
+    s4 = Station((80, 90), air_quality=2, population_density=2, veg_cover=2)
+    stations = np.array([s1, s2, s3, s4])
+
+    m = Map(stations, verbose=True)
+    print(m)
+    result = m.get_data((1, 1))
+    print("Interpolated data at (1,1):", result)
