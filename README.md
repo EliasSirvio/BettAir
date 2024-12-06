@@ -80,7 +80,7 @@ pip install -r requirements.txt
 
 ```
 
-4. **Install libraries**
+5. **Run program**
 
 To run the bokeh_plot_app, run the following commands:
 
