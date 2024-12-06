@@ -83,17 +83,32 @@ THEN need for action is ‘low’
 As the only post-evaluation change, Rule 1 had to be updated to handle the new term ‘highest’, as our new scale for air_pollution required six terms instead of our early implementation with only five.
 
 ### OpenAQ
-We get our air quality pollution data in almost real time using the open air quality API, thus providing a more dynamic experience based on real data. The OpenAQ api is freely accessible online at openaq.org 
+Our system retrieves near real-time air quality data using the OpenAQ API, which provides a dynamic, up-to-date dataset. The OpenAQ API is freely accessible at [openaq.org](https://openaq.org). To obtain the latest readings from a given sensor, we use the endpoint:
+
+*https://api.openaq.org/v3/locations/{location_id}/latest*
+
+By parsing the JSON response, we extract the most relevant metrics—including PM2.5 concentration—along with the sensor’s geographic coordinates. These coordinates are then utilized to plot the sensor on our map and to feed the interpolation process for our heatmap, ultimately providing a more accurate and responsive visualization of current air quality conditions.
+
+### Bokeh
+
+For data visualization, we use Bokeh, a Python library capable of generating interactive visualizations. With Bokeh’s GMapPlot (Google Map integration), we can overlay sensor locations on top of a map, enabling users to easily hover over each station to view detailed information. The interactive features allow users to observe the fuzzy membership scores and understand the recommendations for actions related to the air quality data. As a result, Bokeh enhances both the intuitiveness and the user-friendliness of our system’s visualizations.
+
+![Recommendations](./images/recommendations.png)
+
 
 ### Interface:
-For an interface we are using a simple Python Flask web application. 
+
+![Interface](./images/interface.png) 
 
 ### Evaluation:
 To assess the effectiveness and real-world applicability of our system, we conducted an interview with a professional from the city planning office in Bern. This discussion provided valuable insights into potential improvements and affirmed the system’s practical relevance. 
+
 The interviewee responded positively to the concept of visualizing air quality data through maps rather than relying solely on point measurements. This map-based visualization aims to make air quality information more intuitive and accessible to the general public, who may lack specialized knowledge in this area. Although city planners are already adept at interpreting such data, the participant emphasized that intuitive visualizations could significantly aid in communicating project plans to residents. By clearly illustrating why and how projects are designed, the system can enhance public understanding and facilitate greater community involvement in urban planning processes.
+
 Furthermore, the interview revealed additional factors that could enhance our system’s accuracy and utility. For instance, incorporating measurements related to the proximity of major motorways and nearby industrial sources of pollution could provide a more comprehensive picture of air quality issues. 
 
 The city planner also pointed us toward valuable data sources for these additional measurements, which had not been initially apparent to our team. Integrating these factors and data sources would allow our system to offer more detailed and actionable insights, thereby improving its overall effectiveness in monitoring and managing urban air quality.
+
 
 For a summary of our interview, please refer to the [Interview Report](.\interview_report.md).
 
@@ -103,15 +118,23 @@ We have developed a system that enhances the accessibility of a city’s air qua
 Advancements in sensor technology further support the feasibility of our system, enabling implementation at a relatively low cost. With individual sensors available for approximately 50 CHF, cities can adopt this solution to gain valuable insights into air quality with minimal operational expenses.
 
 Moreover, this system allows for the possibility of directly involving citizens by enabling them to link their personally owned sensors to the network. This crowdsourcing approach not only increases the density and reach of the sensor network but also fosters community engagement, empowering individuals to actively contribute to environmental monitoring and awareness.
+
 This affordability and participatory model ensure municipalities can improve public awareness and response to air quality concerns without significant financial burdens, thereby providing substantial value through enhanced environmental monitoring.
 
 ### Project limitations
-The current system relies on data from open sources, which provides us with moderately real-time air quality information. However, obtaining accurate data on the extent of green spaces has proven challenging and significantly limits the system's effectiveness. To approximate this data, we manually input information based on GIS maps that indicate the amount of green area surrounding the sensors. Nonetheless, the system would greatly benefit from a more precise and automated method for determining green space coverage.
-From our interview, we learned that urban air quality is a multifaceted issue that cannot be fully addressed by simply increasing green spaces or reducing traffic. Numerous variables influence air quality, and accounting for all of them would be a substantial undertaking, extending beyond the scope of this project.
+The current system leverages open-source data to provide moderately real-time insights into air quality. However, accurately quantifying nearby green spaces remains a major challenge. Currently, we rely on manually inputting estimates derived from GIS maps to approximate the amount of vegetation around each sensor. This manual approach limits our system’s accuracy and overall effectiveness.
 
-Additionally, the usability of the system could be enhanced by investing more effort into the user interface design. Since user interface development was not the primary focus of the course, the current design is relatively basic. Improving the interface to make the system more user-friendly and accessible would be a valuable enhancement, facilitating broader adoption and more effective use by both urban planners and the general public.
+To address this issue, one potential improvement involves integrating additional monitoring stations specifically located in parks and other green areas. Increasing the number and coverage of these stations could help refine our vegetation data and enhance the reliability of our interpolations.
 
+Our interviews also underscored that urban air quality is influenced by numerous factors beyond simply increasing greenery or reducing traffic. Variables such as proximity to major roads, the presence of polluting industries, and many others play critical roles. Incorporating more of these variables would significantly deepen our analysis, although this would extend beyond the current scope of the project.
+
+In addition, the usability of the system could be improved by refining the user interface. While UI design was not the primary focus of this course, creating a more intuitive and visually appealing interface would help broaden the system’s adoption among both urban planners and the general public.
+
+Finally, a current technical limitation is our inability to overlay the heatmap directly onto the map. Instead, we must present these views in separate windows. A future iteration of the system should integrate the heatmap as a true overlay for a more seamless and coherent user experience.
 
 ### References:
-- http://apps.who.int/iris/bitstream/10665/250141/1/9789241511353-eng.pdf
-- Maps of Switzerland - Swiss Confederation - map.geo.admin.ch, last checked at 02.12.2024
+1. Ambient Air Pollution: A Global Assessment of Exposure and Burden of Disease, WHO, 2016 Available at: 2. http://apps.who.int/iris/bitstream/10665/250141/1/9789241511353-eng.pdf
+Accessed: 06/12-2024
+2. [Maps of Switzerland - Swiss Confederation - map.geo.admin.ch](https://map.geo.admin.ch/#/map?lang=en&center=2660000,1190000&z=1&bgLayer=ch.swisstopo.pixelkarte-farbe&topic=ech&layers=ch.bfs.volkszaehlung-bevoelkerungsstatistik_einwohner@year=2023), last checked at 02/12-2024
+3. https://openaq.org/ Accessed 06/12-2024
+
