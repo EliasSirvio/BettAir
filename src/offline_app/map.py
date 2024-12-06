@@ -1,7 +1,5 @@
 import numpy as np
 from scipy.spatial import cKDTree
-from openaq_api import get_air_quality_and_coordinates
-from scipy.interpolate import Rbf  # Optional for advanced interpolation
 from map_utils import linearly_independent, barycentric_coordinates
 
 class Station:
@@ -18,14 +16,9 @@ class Station:
         Vegetation Cover =      {vc}
         """
 
-import numpy as np
-from scipy.spatial import cKDTree
-
-# Assuming Station and linearly_independent, barycentric_coordinates are defined elsewhere:
-# from your_module import Station, linearly_independent, barycentric_coordinates
 
 class Map:
-    def __init__(self, stations: np.array, size: int = 100, verbose: bool = False) -> None:
+    def __init__(self, stations: np.ndarray, size: int = 100, verbose: bool = False) -> None:
         """
         Map keeping data from sensor stations at certain locations on a 2D-grid.
         Can interpolate data from surrounding stations to get data for any point on the map 
@@ -52,13 +45,12 @@ class Map:
         return str(self.data)
 
     def add_station(self, station: 'Station') -> None:
-        assert all(-1 < coordinate < self.size for coordinate in station.location), \
-            f"Tried to add station with coordinates {station.location}, but the map's size is only {self.size}."
+        assert all(-1 < coordinate < self.size for coordinate in station.location), f"Tried to add station with coordinates {station.location}, but the map's size is only {self.size}."
         assert station.location not in self.data, "Cannot add multiple stations at the same coordinates."
         self.stations = np.append(self.stations, station)
         self.data[station.location] = station.data
 
-    def add_stations(self, stations: 'list[Station]') -> None:
+    def add_stations(self, stations: list[Station]) -> None:
         for station in stations:
             self.add_station(station)
 

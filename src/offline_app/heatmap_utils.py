@@ -94,7 +94,14 @@ simulation = ctrl.ControlSystemSimulation(ctrl_sys)
 
 def run_simulation(query_location: tuple[int, int], map: Map, sim = simulation):
     """
-    Run simulation, given query location on the given map
+    Run simulation, given query location on the given map.
+    
+    Parameters:
+    - query_location (tuple[float, float]): The (x, y) location on the map grid (float-based).
+    - map_obj (Map): The map object containing stations and data.
+    
+    Returns:
+    - float: Simulated 'need_for_action' value.
     """
     air_pollution, population_density, veg_cover = map.get_data(query_location)
     sim.input['veg_cover'] = veg_cover                      # Vegetation Cover (%)
@@ -145,119 +152,3 @@ def generate_unique_random_locations(n_locations: int, map_size: int) -> list[tu
         while len(unique_locations) < n_locations:
             unique_locations.add((np.random.randint(0, map_size), np.random.randint(0, map_size)))
         return list(unique_locations)
-
-def plot_heatmap(heatmap: np.ndarray, map: Map):
-    """
-    Plot heatmap figure
-
-    Parameters:
-        heatmap:
-            array with need_for_action values for all locations in the map. Shape: (map_size, map_size)
-        map:
-            map with all the stations to interpolate data from
-    
-    Returns:
-        A plot of the heatmap
-    """
-    plt.imshow(heatmap, cmap='hot', interpolation='bicubic')
-    plt.colorbar(label='Need for action')
-    plt.title('Need for green areas', pad=10)
-    plt.xlabel("West <----> East")
-    plt.ylabel("South <----> North")
-    plt.scatter([x for x,y in map.data.keys()], [y for x,y in map.data.keys()], color='g', marker='o', label="Stations")
-    plt.legend()
-    plt.show()
-
-#Fuzzy labels for hover
-
-def get_air_pollution_label(value):
-    """
-    Computes the fuzzy label for air pollution value.
-    """
-    if value < 0 or value > MAX_AP:
-        return "Undefined"
-
-    good = interp_membership(air_pollution.universe, air_pollution['good'].mf, value)
-    moderate = interp_membership(air_pollution.universe, air_pollution['moderate'].mf, value)
-    unhealthy = interp_membership(air_pollution.universe, air_pollution['unhealthy'].mf, value)
-
-    degrees = {'Good': good, 'Moderate': moderate, 'Unhealthy': unhealthy}
-    max_label = max(degrees, key=degrees.get)
-    max_degree = degrees[max_label]
-
-    if max_degree == 0:
-        return "Undefined"
-
-    return max_label
-
-def get_population_density_label(value):
-    """
-    Computes the fuzzy label for population density value.
-    """
-    if value < 0 or value > MAX_PD:
-        return "Undefined"
-
-    very_low = interp_membership(population_density.universe, population_density['very_low'].mf, value)
-    low = interp_membership(population_density.universe, population_density['low'].mf, value)
-    medium = interp_membership(population_density.universe, population_density['medium'].mf, value)
-    high = interp_membership(population_density.universe, population_density['high'].mf, value)
-    very_high = interp_membership(population_density.universe, population_density['very_high'].mf, value)
-    highest = interp_membership(population_density.universe, population_density['highest'].mf, value)
-
-    degrees = {
-        'Very Low': very_low,
-        'Low': low,
-        'Medium': medium,
-        'High': high,
-        'Very High': very_high,
-        'Highest': highest
-    }
-    max_label = max(degrees, key=degrees.get)
-    max_degree = degrees[max_label]
-
-    if max_degree == 0:
-        return "Undefined"
-
-    return max_label
-
-def get_veg_cover_label(value):
-    """
-    Computes the fuzzy label for vegetation cover value.
-    """
-    if value < 0 or value > MAX_VC:
-        return "Undefined"
-
-    low = interp_membership(veg_cover.universe, veg_cover['low'].mf, value)
-    medium = interp_membership(veg_cover.universe, veg_cover['medium'].mf, value)
-    high = interp_membership(veg_cover.universe, veg_cover['high'].mf, value)
-
-    degrees = {'Low': low, 'Medium': medium, 'High': high}
-    max_label = max(degrees, key=degrees.get)
-    max_degree = degrees[max_label]
-
-    if max_degree == 0:
-        return "Undefined"
-
-    return max_label
-
-def get_need_for_action_label(value):
-    """
-    Computes the fuzzy label for need for action value.
-    """
-    if value < 0 or value > 100:
-        return "Undefined"
-
-    low = interp_membership(need_for_action.universe, need_for_action['low'].mf, value)
-    medium = interp_membership(need_for_action.universe, need_for_action['medium'].mf, value)
-    high = interp_membership(need_for_action.universe, need_for_action['high'].mf, value)
-
-    degrees = {'Low': low, 'Medium': medium, 'High': high}
-    max_label = max(degrees, key=degrees.get)
-    max_degree = degrees[max_label]
-
-    if max_degree == 0:
-        return "Undefined"
-
-    return max_label
-
-    plt.show()

@@ -177,28 +177,6 @@ def generate_unique_random_locations(n_locations: int, map_size: int) -> list[tu
             unique_locations.add((np.random.randint(0, map_size), np.random.randint(0, map_size)))
         return list(unique_locations)
 
-def plot_heatmap(heatmap: np.ndarray, map: Map):
-    """
-    Plot heatmap figure
-
-    Parameters:
-        heatmap:
-            array with need_for_action values for all locations in the map. Shape: (map_size, map_size)
-        map:
-            map with all the stations to interpolate data from
-    
-    Returns:
-        A plot of the heatmap
-    """
-    plt.imshow(heatmap, cmap='hot', interpolation='bicubic')
-    plt.colorbar(label='Need for action')
-    plt.title('Need for green areas', pad=10)
-    plt.xlabel("West <----> East")
-    plt.ylabel("South <----> North")
-    plt.scatter([x for x,y in map.data.keys()], [y for x,y in map.data.keys()], color='g', marker='o', label="Stations")
-    plt.legend()
-    plt.show()
-
 #Fuzzy labels for hover
 
 def get_air_pollution_label(value):
