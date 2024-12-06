@@ -24,7 +24,9 @@ Based on the stations placed on the map, we use barycentric interpolation of the
 
 The output variable of our fuzzy system is called need_for_action (%), which is mapped to a color-scale to create the heat map. When the need_for_action is calculated throughout the entire map, we get a figure looking something like this:
 
-*(Insert image)*
+![Heatmap Output][heatmap]
+
+[heatmap]: ./images/offline_app_output "Heatmap Output"
 
 The idea is that this can provide a layer that can be plotted on top of a real world map, indicating what parts of a city that are in need of attention when it comes to green areas.
 
