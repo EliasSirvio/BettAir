@@ -5,34 +5,10 @@ from scipy.interpolate import Rbf  # Optional for advanced interpolation
 from map_utils import linearly_independent, barycentric_coordinates
 
 class Station:
-    def __init__(self, location_id: int, population_density: int, veg_cover: int) -> None:
-        """
-        Initialize a Station with real geographic coordinates.
-        
-        Parameters:
-        - location_id (int): OpenAQ location ID.
-        - population_density (int): Population density (inhabitants/ha).
-        - veg_cover (int): Vegetation cover (%).
-        """
-        self.location_id = location_id  # Store the location_id as an instance attribute
+    def __init__(self, location: tuple[int, int], air_quality: float, population_density: float, veg_cover: float) -> None:
+        self.location = location
+        self.data = np.array([air_quality, population_density, veg_cover])
 
-        air_quality, coordinates = get_air_quality_and_coordinates(location_id)
-        
-        if coordinates:
-            self.latitude = coordinates['latitude']
-            self.longitude = coordinates['longitude']
-            self.location = (self.latitude, self.longitude)  # Real coordinates as floats
-        else:
-            self.latitude = 0.0
-            self.longitude = 0.0
-            self.location = (self.latitude, self.longitude)  # Default coordinates
-        
-        self.data = np.array([
-            air_quality if air_quality is not None else -1,  # Air Quality (µg/m³)
-            population_density,                              # Population Density (inhabitants/ha)
-            veg_cover                                        # Vegetation Cover (%)
-        ])
-    
     def __str__(self) -> str:
         aq, pd, vc = self.data
         return f"""
@@ -85,32 +61,19 @@ class Map:
         return f"Map contains {len(self.normalized_coordinates)} stations."
     
     def add_station(self, station: Station) -> None:
-        """
-        Add a single Station to the Map.
-        
-        Parameters:
-        - station (Station): The Station object to add.
-        """
-        # Update min and max
-        self.min_lat = min(self.min_lat, station.latitude)
-        self.max_lat = max(self.max_lat, station.latitude)
-        self.min_lon = min(self.min_lon, station.longitude)
-        self.max_lon = max(self.max_lon, station.longitude)
-        
-        # Normalize new station's coordinates
-        normalized_lat = (station.latitude - self.min_lat) / (self.max_lat - self.min_lat) * (self.size - 1)
-        normalized_lon = (station.longitude - self.min_lon) / (self.max_lon - self.min_lon) * (self.size - 1)
-        normalized_location = (normalized_lat, normalized_lon)
-        
-        # Append to existing data
-        self.normalized_coordinates = np.vstack([self.normalized_coordinates, normalized_location])
-        self.data = np.vstack([self.data, station.data])
-        self.kd_tree = cKDTree(self.normalized_coordinates)  # Rebuild KD-Tree
-        
-        if self.verbose:
-            print(f"Added Station at ({station.latitude:.4f}, {station.longitude:.4f}) normalized to ({normalized_lat:.2f}, {normalized_lon:.2f}).")
+        assert all(-1 < coordinate < self.size for coordinate in station.location), f"Tried to add station with coordinates {station.location}, but the map's size is only {self.size}."
+        assert station.location not in self.data, "Cannot add multiple stations at the same coordinates."
+        self.stations = np.append(self.stations, station)
+        self.data[station.location] = station.data
     
-    def get_data(self, location: tuple[float, float], n_neighbors: int=3) -> tuple[float, int, int]:
+    def add_stations(self, stations: list[Station]) -> None:
+        for station in stations:
+            self.add_station(station)
+
+    def location_is_occupied(self, location: tuple[int, int]) -> bool:
+        return location in self.data
+
+    def get_data(self, location: tuple[int, int]) -> tuple[int, int, int]:
         """
         Interpolate data for a given location using the n closest stations with Inverse Distance Weighting (IDW).
         

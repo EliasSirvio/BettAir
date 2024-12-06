@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 MAX_PD = 151
 """Maximum value for population density (exclusive)\n
 Unit: µg/m³ of the pollutor pm2.5"""
-MAX_AP = 171
+MAX_AP = 71
 """Maximum value for air pollution (exclusive)\n
 Unit: inhabitants/ha""" 
 MAX_VC = 101
@@ -34,19 +34,19 @@ population_density['very_low'] = fuzz.zmf(population_density.universe, a=2, b=3)
 # based on scale from https://www.geocat.ch/geonetwork/srv/eng/catalog.search#/metadata/4bfbbf20-d90e-4131-8fe2-4c454ad45c16
 population_density['very_low'] = fuzz.gaussmf(population_density.universe, mean=2, sigma=1)
 population_density['low'] = fuzz.gaussmf(population_density.universe, mean=5, sigma=1)
-population_density['medium'] = fuzz.gaussmf(population_density.universe, mean=11, sigma=4)
-population_density['high'] = fuzz.gaussmf(population_density.universe, mean=28, sigma=12)
-population_density['very_high'] = fuzz.gaussmf(population_density.universe, mean=80, sigma=40)
+population_density['medium'] = fuzz.gaussmf(population_density.universe, mean=11, sigma=2)
+population_density['high'] = fuzz.gaussmf(population_density.universe, mean=28, sigma=6)
+population_density['very_high'] = fuzz.gaussmf(population_density.universe, mean=80, sigma=20)
 population_density['highest'] = fuzz.smf(population_density.universe, a=100, b=120)    
 
 # Air Pollution Membership Functions
 air_pollution['good'] = fuzz.zmf(air_pollution.universe, a=10, b=15)
-air_pollution['moderate'] = fuzz.gaussmf(air_pollution.universe, mean=25, sigma=9) #[12, 20, 30, 38]
+air_pollution['moderate'] = fuzz.gaussmf(air_pollution.universe, mean=25, sigma=7)
 air_pollution['unhealthy'] = fuzz.smf(air_pollution.universe, a=35, b=50)   
 
 # Vegetation Cover Membership Functions
 veg_cover['low'] = fuzz.zmf(veg_cover.universe, a=15, b=30)
-veg_cover['medium'] = fuzz.gaussmf(veg_cover.universe, mean=50, sigma=17) #[25, 40, 60, 75]
+veg_cover['medium'] = fuzz.gaussmf(veg_cover.universe, mean=50, sigma=15)
 veg_cover['high'] = fuzz.smf(veg_cover.universe, a=65, b=85)  
 
 # Need for Action Membership Functions
@@ -134,15 +134,34 @@ def run_simulation(query_location: tuple[float, float], map_obj: Map) -> float:
         logging.error(f"Error during simulation at location {query_location}: {e}")
         return 0.0  # Assign a default or error value
 
-def generate_random_stations(n_stations: int, map_size: int) -> np.ndarray:
+def generate_random_stations(n_stations: int, map_size: int, max_ap: int = MAX_AP, max_pd: int = MAX_PD, max_vc: int = MAX_VC) -> np.ndarray[Station]:
     """
     Generates an array of n_stations stations, placed randomly (but all with unique locations) on the map with random data.
+
+    Parameters:
+        n_stations:
+            Number of stations to generate
+        map_size:
+            Length of map along one axis
+        max_ap:
+            Maximum value for randomly drawn air pollution data. Should be less than 151.
+        max_pd:
+            Maximum value for randomly drawn population density data. Should be less than 151.
+        max_vc:
+            Maximum value for randomly drawn vegetation cover data. Should be less than 101.
+    
+    Returns:
+        An np.array of stations
     """    
+    assert max_ap <= MAX_AP, f"max_ap can not be >{MAX_AP}"
+    assert max_pd <= MAX_PD, f"max_pd can not be >{MAX_PD}"
+    assert max_vc <= MAX_VC, f"max_vc can not be >{MAX_VC}"
+
     # Random values for stations
     random_locations = generate_unique_random_locations(n_locations=n_stations, map_size=map_size)
-    random_aq = [np.random.randint(0,MAX_AP) for _ in range(n_stations)]
-    random_pd = [np.random.randint(0,MAX_PD) for _ in range(n_stations)]
-    random_vc = [np.random.randint(0,MAX_VC) for _ in range(n_stations)]
+    random_aq = np.random.randint(low=0, high=max_ap, size=n_stations)
+    random_pd = np.random.randint(low=0, high=max_pd, size=n_stations)
+    random_vc = np.random.randint(low=0, high=max_vc, size=n_stations)
     # Initiate random stations
     stations = [Station(random_locations[i], random_aq[i], random_pd[i], random_vc[i]) for i in range(n_stations)]
     return np.array(stations)

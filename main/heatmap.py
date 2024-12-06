@@ -4,9 +4,10 @@ from map import Map
 from fuzzy_utils import run_simulation, generate_random_stations
 from tqdm import tqdm
 
-# Size of map, and number of stations on the map
-MAP_SIZE, N_STATIONS = 20, 5
-# NB: Significantly affects computation time - Output is computed for MAP_SIZE^2 locations
+if __name__ == "__main__":
+    # Size of map, and number of stations on the map
+    MAP_SIZE, N_STATIONS = 50, 50
+    # NB: Significantly affects computation time - Output is computed for MAP_SIZE^2 locations
 
 # Initiate map
 stations = generate_random_stations(n_stations=N_STATIONS, map_size=MAP_SIZE)
