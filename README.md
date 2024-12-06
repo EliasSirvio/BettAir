@@ -10,14 +10,11 @@ Please refer to the [Project Report](./report.md) for a full description of our 
 
 ### Requirements
 
-Python version 3.9, 3.10, or 3.11 (3.12 not yet supported).
+Python version 3.13
 
 > [!NOTE]
-> This guide assists in setting up JupyterLab and Python dependencies. 
+> This guide assists in setting up Python dependencies. 
 > If you're already comfortable with Python, feel free to use your preferred setup process.
-
-First, **fork and clone this repository**, or download it manually to your computer. 
-Then open a terminal inside the repository and proceed.
 
 ### Linux / macOS setup
 
@@ -46,16 +43,8 @@ With the virtual environment activated, **install the required dependencies**:
 ```
 pip install --upgrade pip
 pip install -r requirements.txt
-pip install jupyterlab
 ```
 
-5. **Start JupyterLab**:
-
-```bash
-jupyter lab
-```
-
-This should open a local web interface (or display a URL) for JupyterLab, where you can access the tutorial notebooks.
 
 
 ### Windows setup
@@ -88,13 +77,5 @@ With the virtual environment activated, **install the required dependencies**:
 ```
 pip install --upgrade pip
 pip install -r requirements.txt
-pip install jupyterlab
 ```
 
-5. **Start JupyterLab**:
-
-```bash
-jupyter lab
-```
-
-This command should open a local web interface (or display a URL) for JupyterLab, where you can access the tutorial notebooks.
