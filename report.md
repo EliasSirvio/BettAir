@@ -21,7 +21,7 @@ In our implementation, each Station holds data for all three input variables;
 - Population density (inhabitants/m2)
 - Vegetation cover (%)
 
-Based on the stations placed on the map, we use barycentric interpolation of the data (based on the three closest stations) to make a continuous representation of the data. To efficiently identify nearby stations, we store them in a k-d tree structure.
+Based on the stations placed on the map, we use *barycentric interpolation* of the data (based on the three closest stations) to make a continuous representation of the data. To efficiently identify nearby stations, we store them in a *k-d tree* structure.
 
 The output variable of our fuzzy system is called need_for_action (%), which is mapped to a color-scale to create the heat map. When the need_for_action is calculated throughout the entire map, we get a figure looking something like this:
 
