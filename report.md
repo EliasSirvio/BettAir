@@ -110,7 +110,7 @@ Furthermore, the interview revealed additional factors that could enhance our sy
 The city planner also pointed us toward valuable data sources for these additional measurements, which had not been initially apparent to our team. Integrating these factors and data sources would allow our system to offer more detailed and actionable insights, thereby improving its overall effectiveness in monitoring and managing urban air quality.
 
 
-For a summary of our interview, please refer to the [Interview Report](.\interview_report.md).
+For a summary of our interview, please refer to the [Interview Report](./interview_report.md).
 
 ### Discussion
 We have developed a system that enhances the accessibility of a city’s air quality data for its residents by integrating real-time dynamic sensor data with a fuzzy rules-based framework to assess the severity of air quality issues. This approach is highly scalable, performing more effectively as additional sensors are deployed, which allows for a more detailed and accurate mapping of air quality distribution throughout the area.
